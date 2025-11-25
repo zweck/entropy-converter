@@ -220,7 +220,7 @@ function EntropyScene({ t }) {
 
       {/* Past volume - semi-transparent box */}
       {pastFraction > 0.01 && (
-        <mesh position={[-4 + 4 * pastFraction / 2, 0, 0]}>
+        <mesh position={[-4 + 4 * pastFraction, 0, 0]}>
           <boxGeometry args={[8 * pastFraction, 2, 2]} />
           <meshStandardMaterial
             color="#331100"
@@ -235,7 +235,7 @@ function EntropyScene({ t }) {
 
       {/* Past wireframe */}
       {pastFraction > 0.01 && (
-        <lineSegments position={[-4 + 4 * pastFraction / 2, 0, 0]}>
+        <lineSegments position={[-4 + 4 * pastFraction, 0, 0]}>
           <edgesGeometry args={[new THREE.BoxGeometry(8 * pastFraction, 2, 2)]} />
           <lineBasicMaterial color="#ff6600" transparent opacity={0.5} />
         </lineSegments>
@@ -243,7 +243,7 @@ function EntropyScene({ t }) {
 
       {/* Future volume */}
       {futureFraction > 0.01 && (
-        <mesh position={[4 - 4 * futureFraction / 2, 0, 0]}>
+        <mesh position={[4 - 4 * futureFraction, 0, 0]}>
           <boxGeometry args={[8 * futureFraction, 2, 2]} />
           <meshStandardMaterial
             color="#001133"
@@ -258,7 +258,7 @@ function EntropyScene({ t }) {
 
       {/* Future wireframe */}
       {futureFraction > 0.01 && (
-        <lineSegments position={[4 - 4 * futureFraction / 2, 0, 0]}>
+        <lineSegments position={[4 - 4 * futureFraction, 0, 0]}>
           <edgesGeometry args={[new THREE.BoxGeometry(8 * futureFraction, 2, 2)]} />
           <lineBasicMaterial color="#0088ff" transparent opacity={0.6} />
         </lineSegments>
@@ -302,7 +302,7 @@ function EntropyScene({ t }) {
       )}
       {pastFraction > 0.05 && (
         <Text
-          position={[-4 + 4 * pastFraction / 2, -1.8, 0]}
+          position={[-4 + 4 * pastFraction, -1.8, 0]}
           fontSize={0.25}
           color="#ff8844"
           anchorX="center"
@@ -320,7 +320,7 @@ function EntropyScene({ t }) {
       </Text>
       {futureFraction > 0.05 && (
         <Text
-          position={[4 - 4 * futureFraction / 2, -1.8, 0]}
+          position={[4 - 4 * futureFraction, -1.8, 0]}
           fontSize={0.25}
           color="#44aaff"
           anchorX="center"
@@ -420,17 +420,27 @@ export default function EntropyVisualization({ t, setT }) {
       </div>
 
       <div className="legend">
+        <h4>Particles</h4>
         <div className="legend-item">
           <span className="legend-color past"></span>
-          <span>Thermodynamic Entropy (realized disorder)</span>
+          <span>Collapsed events (what has happened)</span>
         </div>
         <div className="legend-item">
           <span className="legend-color future"></span>
-          <span>Informational Entropy (possibility space)</span>
+          <span>Possible states (what could happen)</span>
+        </div>
+        <h4>Areas</h4>
+        <div className="legend-item">
+          <span className="legend-color past"></span>
+          <span>Past: thermodynamic entropy (fixed)</span>
+        </div>
+        <div className="legend-item">
+          <span className="legend-color future"></span>
+          <span>Future: available entropy space (shrinking)</span>
         </div>
         <div className="legend-item">
           <span className="legend-color present"></span>
-          <span>Present (collapse frontier)</span>
+          <span>NOW: collapse frontier</span>
         </div>
       </div>
     </div>

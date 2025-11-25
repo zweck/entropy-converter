@@ -342,22 +342,22 @@ function CPUScene({ t }) {
       <HeatParticles t={t} />
 
       {/* Labels */}
-      <Text position={[0, 1.55, 0]} fontSize={0.12} color="#00aaff">
-        PENDING INSTRUCTIONS
+      <Text position={[0, 1.55, 0]} fontSize={0.09} color="#00aaff">
+        PENDING
       </Text>
-      <Text position={[0, 1.4, 0]} fontSize={0.06} color="#666">
-        Informational Entropy (Future)
+      <Text position={[0, 1.42, 0]} fontSize={0.05} color="#555">
+        (possible states)
       </Text>
 
-      <Text position={[0.9, 0.1, 0]} fontSize={0.08} color="#ffffff">
+      <Text position={[0.7, 0.1, 0]} fontSize={0.06} color="#ffffff">
         NOW
       </Text>
 
-      <Text position={[0, -0.65, 0]} fontSize={0.1} color="#ff8844">
+      <Text position={[0, -0.65, 0]} fontSize={0.08} color="#ff8844">
         EXECUTED
       </Text>
-      <Text position={[0, -0.78, 0]} fontSize={0.06} color="#666">
-        Thermodynamic Entropy (Past)
+      <Text position={[0, -0.76, 0]} fontSize={0.05} color="#555">
+        (collapsed events)
       </Text>
     </>
   );

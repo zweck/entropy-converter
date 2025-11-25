@@ -227,6 +227,19 @@ html, body, #root {
   backdrop-filter: blur(10px);
 }
 
+.legend h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.legend h4:not(:first-child) {
+  margin-top: 0.75rem;
+}
+
 .legend-item {
   display: flex;
   align-items: center;
@@ -407,8 +420,12 @@ html, body, #root {
   overflow: hidden;
 }
 
-.visualization-split.dual .viz-panel {
-  width: 50%;
+.visualization-split.dual .universe-panel {
+  width: 65%;
+}
+
+.visualization-split.dual .cpu-panel {
+  width: 35%;
 }
 
 .visualization-split.single .viz-panel {
@@ -421,6 +438,7 @@ html, body, #root {
 
 .cpu-panel {
   background: linear-gradient(180deg, #080c18 0%, #050710 100%);
+  opacity: 0.85;
 }
 
 .panel-label {
@@ -582,9 +600,14 @@ html, body, #root {
     flex-direction: column;
   }
 
-  .visualization-split.dual .viz-panel {
+  .visualization-split.dual .universe-panel {
     width: 100%;
-    height: 50%;
+    height: 60%;
+  }
+
+  .visualization-split.dual .cpu-panel {
+    width: 100%;
+    height: 40%;
   }
 
   .universe-panel {
