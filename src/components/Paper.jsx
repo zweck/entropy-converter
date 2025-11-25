@@ -163,7 +163,37 @@ Use the **Visualization** tab to explore this model interactively.
 
 ---
 
-## 9. Implications and Open Questions
+## 9. Computation as Entropy Conversion
+
+A striking realisation emerges when we consider what a **CPU** does:
+
+> A CPU is a physical implementation of "NOW"—a machine that converts informational entropy into thermodynamic entropy.
+
+Consider the instruction pipeline:
+
+- **Pending instructions** represent *informational entropy*: possibilities that have not yet been realised. The program *could* branch many ways; the data *could* take many values.
+
+- **The execution unit** is the **present moment**: the point where possibility collapses into actuality. One specific instruction executes. One specific state is written.
+
+- **Executed instructions** become *immutable history*: the past states of the machine, now fixed.
+
+- **Heat dissipation** is the thermodynamic cost: the entropy that must be released into the environment as possibilities collapse into facts.
+
+This is not merely an analogy—it is the *same process* operating at different scales:
+
+$$\\text{CPU} \\equiv \\text{NOW}:\\quad S_{\\text{info}}^{\\text{instructions}} \\to S_{\\text{therm}}^{\\text{heat}}$$
+
+Landauer's principle already tells us that erasing information has a minimum thermodynamic cost ($kT \\ln 2$ per bit). Our model suggests this is a specific instance of a universal principle: **all computation is entropy conversion**, and **all entropy conversion is a form of time**.
+
+This perspective suggests:
+
+1. **Reversible computing** attempts to minimise the conversion rate—to slow "computational time".
+2. **Quantum computers** maintain superposition longer—keeping informational entropy high before collapse.
+3. **The universe itself** may be understood as a vast computation, with the arrow of time as its execution direction.
+
+---
+
+## 10. Implications and Open Questions
 
 This model raises several interesting questions for further exploration:
 
