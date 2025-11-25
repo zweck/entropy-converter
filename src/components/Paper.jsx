@@ -11,25 +11,23 @@ const paperContent = `
 
 ## Abstract
 
-I propose a model of time in which the universe has a fixed total entropy budget, partitioned into two forms: **informational entropy** (the space of unrealised possibilities) and **thermodynamic entropy** (the disorder of realised physical configurations). In this view, *time is the process by which informational entropy collapses into certainty*, converting possible states into immutable history. To conserve total entropy, each collapse event reduces informational entropy and forces a corresponding increase in thermodynamic entropy. This provides a unified explanation of (1) why the past appears ordered and fixed, (2) why thermodynamic entropy increases, and (3) why there is a directed arrow of time. Thermodynamic entropy is thus not fundamental, but a bookkeeping shadow of a deeper conservation principle over the space of possibilities.
+I propose a model of time in which the universe has a fixed total entropy budget, partitioned into two forms: **informational entropy** (the space of unrealised possibilities) and **thermodynamic entropy** (the disorder of realised physical configurations). Time is modelled as the ongoing **conversion of informational entropy into thermodynamic entropy**, occurring at the boundary we perceive as the present. Each collapse event reduces the future's informational entropy and forces an equal increase in thermodynamic entropy, conserving the total. This framework resolves the entropy paradox, explains the arrow of time, and aligns naturally with computational interpretations of physical law, including—but not requiring—simulation-theoretic perspectives.
 
 ---
 
 ## 1. Introduction
 
-Standard physics treats **thermodynamic entropy** as a measure of disorder, and the **Second Law** as an empirical fact: entropy increases with time.
+Physics describes the Second Law of Thermodynamics as an empirical fact: **entropy increases with time**. But this leads to profound conceptual puzzles:
 
-This raises several long-standing puzzles:
+- Why did the universe begin in a low-entropy state?
+- Why is the past fixed and orderly, while the future is open and uncertain?
+- What determines the direction of time's arrow?
 
-- Why did the universe begin in an extremely low-entropy state?
-- Why is the **past** experienced as fixed and ordered, while the **future** appears open and undetermined?
-- Why does entropy increase *at all*—what fixes the direction of this increase?
+This paper suggests a reframing:
 
-Here I sketch an alternative framing:
+> **Time is the process by which the universe converts probability into immutability.**
 
-> **Time is the conversion of probability into immutability.**
-
-At every "moment", the universe resolves some sliver of possibility into an actual, fixed configuration. The key move is to assume that **the total entropy of the universe is conserved**, but that it exists in two forms: *informational* and *thermodynamic*. The arrow of time emerges as a consequence of converting one into the other.
+This leads naturally to a dual-entropy model.
 
 ---
 
@@ -37,25 +35,27 @@ At every "moment", the universe resolves some sliver of possibility into an actu
 
 Define:
 
-- $S_{\\text{info}}(t)$: **informational entropy** — The entropy of the *future possibility space*—how many ways the universe could still unfold.
+- $S_{\\text{info}}(t)$: **informational entropy** — entropy of unrealised future possibilities.
 
-- $S_{\\text{therm}}(t)$: **thermodynamic entropy** — The entropy of the *realised physical state*—how many microstates are compatible with the macrostate of the universe.
+- $S_{\\text{therm}}(t)$: **thermodynamic entropy** — entropy of the realised physical universe.
 
-The central hypothesis:
+Assume:
 
 $$S_{\\text{total}} = S_{\\text{info}}(t) + S_{\\text{therm}}(t) = \\text{constant}$$
 
-The universe begins with an enormous space of possible configurations (high $S_{\\text{info}}$) and minimal realised structure (low $S_{\\text{therm}}$).
+This assumption aligns with the holographic bound and several modern formulations in quantum information theory.
 
 ---
 
 ## 3. Collapse as the Substance of Time
 
-Instead of treating time as a background parameter, we treat **collapse** as the primitive:
+The "present" is the boundary where many possible futures collapse into one actual world-line. This collapse reduces informational entropy:
 
-> A *collapse event* turns a portion of the possibility space into a fixed, immutable history.
+$$\\Delta S_{\\text{info}} < 0$$
 
-At each such event:
+The past grows; the future contracts.
+
+At each collapse event:
 
 - A set of possible futures converges into **one realised state**.
 - That part of the future ceases to be probabilistic and becomes **past**.
@@ -66,46 +66,35 @@ In this sense:
 - **Present**: the boundary where collapse occurs.
 - **Future**: all remaining unrealised possibilities.
 
-Formally, at each collapse:
-
-$$\\Delta S_{\\text{info}} < 0$$
-
 Informational entropy is **spent**.
 
 ---
 
 ## 4. Conservation and the Rise of Thermodynamic Entropy
 
-If total entropy is conserved:
+Given conservation:
 
-$$S_{\\text{total}} = S_{\\text{info}} + S_{\\text{therm}} = \\text{constant}$$
+$$\\Delta S_{\\text{therm}} = -\\Delta S_{\\text{info}} > 0$$
 
-Then any **decrease** in $S_{\\text{info}}$ must be matched by an **increase** in $S_{\\text{therm}}$:
+Thus:
 
-$$\\Delta S_{\\text{therm}} = - \\Delta S_{\\text{info}}$$
-
-This reframes the Second Law:
-
-> **Thermodynamic entropy must increase because informational entropy is collapsing.**
+> **Thermodynamic entropy increases because informational entropy is being lost due to collapse.**
 
 The universe cannot "lose" the entropy associated with unrealised possibilities; instead, when possibilities are removed by collapse, their entropy is *re-expressed* as disorder in the physical configuration of the universe.
 
-Thermodynamic entropy is the **recording cost** of turning possibility into fact.
+The Second Law becomes a manifestation of informational entropy conversion.
 
 ---
 
-## 5. Shrinking Possibility Space and Increasing Pressure
+## 5. Shrinking Future, Increasing Density
 
-As more of the universe becomes fixed history, the **volume** of remaining possibility space shrinks:
+As collapse continues:
 
-- Fewer degrees of freedom remain to be decided.
-- However, the *total* entropy budget remains constant.
-- Therefore, the **density** of informational entropy in the remaining future must **increase**.
+- The volume of the future possibility space decreases
+- But the total informational entropy budget is fixed
+- So informational entropy becomes more densely packed
 
-Heuristically:
-
-- Initially: vast possibility space, low entropy density.
-- Over time: smaller possibility space, higher entropy density ("possibility pressure").
+Thermodynamic entropy rises because the universe must store the "cost" of collapse.
 
 This "pressure" manifests as an increasing tendency toward high-entropy physical configurations: the universe is *forced* into higher thermodynamic entropy states to account for the compressed uncertainty.
 
@@ -113,7 +102,7 @@ This "pressure" manifests as an increasing tendency toward high-entropy physical
 
 ## 6. The Arrow of Time
 
-This model naturally explains why time has a direction:
+Collapse is irreversible. Thus thermodynamic entropy inherits the direction of informational entropy loss.
 
 1. **Collapse is intrinsically one-way.**
    Once possibilities become facts, they cannot be "un-collapsed"; the past is immutable by definition.
@@ -126,38 +115,27 @@ $$\\frac{dS_{\\text{info}}}{dt} \\le 0$$
 
 $$\\frac{dS_{\\text{therm}}}{dt} \\ge 0$$
 
-4. The arrow of time is thus not mysterious: it is simply the direction in which possibility is being converted into certainty.
-
-We experience this arrow subjectively as "the flow of time"; physically we see it as the Second Law.
-
-Both are different views of the same underlying process.
+Time flows from high uncertainty to fully committed certainty.
 
 ---
 
-## 7. Cosmological Sketch
+## 7. Cosmological Implications
 
 This perspective offers intuitive answers to several cosmological questions:
 
-- **Why was the early universe low-entropy?**
-  Because almost all of the entropy budget was still stored as **informational entropy**; little had yet been crystallised into thermodynamic form.
-
-- **What is "heat death"?**
-  Not merely uniform temperature, but a state where **almost all informational entropy has been spent**; almost all possibilities have been collapsed into fixed records, leaving minimal remaining possibility space.
-
-- **What is time?**
-  Not a container we move through, but the *ongoing execution* of entropy conversion:
-
-$$\\text{time} \\sim \\text{process}:\\ S_{\\text{info}} \\to S_{\\text{therm}}$$
+- **Early universe** = maximal informational entropy, minimal physical entropy
+- **Heat death** = exhaustion of informational entropy; almost all possibilities have been collapsed into fixed records
+- **Cosmic acceleration** may be interpretable as informational pressure
 
 ---
 
-## 8. Visual Metaphor
+## 8. Visual Model
 
-A useful visual metaphor—and the basis for the 3D visualisation—is:
+A 3D model can represent:
 
-- A **shrinking volume** representing the future possibility space (informational entropy).
-- A **growing "heat" or complexity field** representing thermodynamic entropy.
-- A moving **boundary surface** representing the present: the frontier where possibility is converted into fact.
+- **Past** = crystallised region (orange particles, frozen in place)
+- **Present** = glowing conversion boundary (the "NOW" surface)
+- **Future** = shrinking, intensifying informational field (blue particles, increasingly excited)
 
 Use the **Visualization** tab to explore this model interactively.
 
@@ -185,27 +163,69 @@ $$\\text{CPU} \\equiv \\text{NOW}:\\quad S_{\\text{info}}^{\\text{instructions}}
 
 Landauer's principle already tells us that erasing information has a minimum thermodynamic cost ($kT \\ln 2$ per bit). Our model suggests this is a specific instance of a universal principle: **all computation is entropy conversion**, and **all entropy conversion is a form of time**.
 
-This perspective suggests:
+---
 
-1. **Reversible computing** attempts to minimise the conversion rate—to slow "computational time".
-2. **Quantum computers** maintain superposition longer—keeping informational entropy high before collapse.
-3. **The universe itself** may be understood as a vast computation, with the arrow of time as its execution direction.
+## 10. Simulation-Theoretic Interpretation
+
+Although this model does not assert the universe is a simulation, it reveals a computational structure underlying physical reality. Several features align naturally with familiar concepts from computation:
+
+### (A) The Present as an Execution Boundary
+
+In this model the present is the "entropy converter": the boundary where many possible futures collapse into one realised state. This resembles the *execution step* in computational systems, where a processor selects one branch of many potential code paths and commits the next state.
+
+If the universe were a computation, the present moment would correspond to the "tick" or "cycle" where state updates occur.
+
+### (B) Finite Informational Entropy = Finite State Space
+
+The assumption that the universe contains a fixed total entropy budget mirrors the finite-state constraint of any computable system. A universe with a finite Hilbert space, finite informational entropy, or holographic bound is structurally equivalent to a simulable system.
+
+This does not prove simulation; it shows **structural compatibility**.
+
+### (C) Collapse as Branch Resolution
+
+Quantum collapse in this model plays the same functional role as branch prediction resolution in a CPU: many potential future states reduce to one committed path. The reduction of informational entropy mirrors the reduction of computational branching entropy.
+
+### (D) Thermodynamic Entropy as State-Update Cost
+
+When informational entropy decreases, thermodynamic entropy must rise. In computation, irreversible state updates incur unavoidable entropy costs (Landauer's principle).
+
+The universe's increasing thermodynamic entropy can therefore be interpreted as:
+
+> A physical manifestation of the cost of committing new states as informational possibilities collapse.
+
+This is precisely what happens in simulated systems: writing to memory incurs entropy/energy cost.
+
+### (E) An Interpretation Without Metaphysical Commitment
+
+The alignment between the entropy-conversion model and computational architectures does not imply a conscious designer, digital substrate, or "simulation" in the science-fiction sense.
+
+It may instead indicate:
+
+- Computation is the fundamental structure of physical law
+- Physical law and computability are equivalent descriptions
+- Reality behaves computationally by necessity, not design
+
+This perspective is consonant with Wheeler's "It from Bit," the holographic principle, and quantum information theory.
+
+### (F) A Minimal Simulation Hypothesis
+
+This model suggests a weaker and more philosophically grounded simulation hypothesis:
+
+> **Regardless of whether our universe is *simulated*, it behaves as if its evolution is a computation converting informational entropy into thermodynamic entropy.**
+
+In this view, "simulation" is not an ontological claim but a structural one: **reality has the architecture of a computation.**
 
 ---
 
-## 10. Implications and Open Questions
+## 11. Conclusion
 
-This model raises several interesting questions for further exploration:
+By reframing time as the irreversible conversion of informational entropy into thermodynamic entropy, we obtain a unified explanation for the arrow of time, the increasing disorder of the universe, the apparent low entropy of the early cosmos, and the structure of quantum collapse.
 
-1. **Relationship to quantum mechanics**: Does wavefunction collapse represent the microscopic mechanism of this entropy conversion?
+This framework also naturally exhibits computational characteristics. Whether or not the universe is literally a simulation, it behaves as a system performing continuous state updates under a conservation constraint.
 
-2. **Rate of conversion**: What determines the "speed" of time—the rate at which informational entropy converts to thermodynamic entropy?
+The present moment can thus be understood as the universe's "execution engine": a boundary that selects outcomes, commits history, and redistributes entropy to maintain global invariants.
 
-3. **Local vs. global**: Is this conversion uniform across spacetime, or can it vary locally?
-
-4. **Reversibility**: If thermodynamic entropy is truly just "stored" informational entropy, could there be conditions under which it converts back?
-
-5. **Consciousness and observation**: Does conscious observation play a special role in the collapse process, or is it purely physical?
+This view does not prove simulation theory, but it demonstrates that the underlying architecture of physical reality is computational in form—a possibility increasingly supported by modern theoretical physics.
 
 ---
 
