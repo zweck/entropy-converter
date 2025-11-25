@@ -1,0 +1,1 @@
+- Future particels should never decrease, just get more excited. The idea is that as informational entropy is collapsed into the immunitble past, the entorpy space shrinks forcing higher thermodynamic entropy, causeing the head death of the universe. Also, the particles are again only visible in the boxes at certain angles
