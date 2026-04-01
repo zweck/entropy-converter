@@ -1,8 +1,8 @@
 # ⏳ Time as Observation-Limited Entropy Conversion
 
-**What if time isn't a dimension — but a process?**
+**What if time, mass, gravity, and dark matter all emerge from the same thing?**
 
-This is an interactive companion to a theoretical framework proposing that time emerges from the irreversible conversion of unobserved possibilities into physical records. Its local rate is determined by the thermodynamic cost of observation. Relativity is observation economics.
+This is an interactive companion to a theoretical framework proposing that time emerges from the irreversible conversion of unobserved possibilities into physical records — and that mass, gravity, and dark matter are consequences of the same informational mechanism.
 
 🔗 **[Read the paper →](https://entropy-converter.pages.dev)**
 
@@ -17,7 +17,14 @@ The universe has two kinds of entropy:
 
 Time is what happens when the first becomes the second. The "now" is the boundary where possibilities become history — a **now-horizon** that advances at a rate governed by the local cost of observation.
 
-The key insight: because [Landauer's principle](https://en.wikipedia.org/wiki/Landauer%27s_principle) ties the cost of each irreversible bit commitment to local temperature, observation is **cheaper in cold environments** and **more expensive in hot ones**. This naturally reproduces relativistic time dilation — time runs slower in gravitational wells not as a geometric axiom, but as a thermodynamic consequence.
+Because [Landauer's principle](https://en.wikipedia.org/wiki/Landauer%27s_principle) ties the cost of each irreversible bit commitment to local temperature, observation is **cheaper in cold environments** and **more expensive in hot ones**. This naturally reproduces relativistic time dilation — not as a geometric axiom, but as a thermodynamic consequence.
+
+The framework then extends further:
+
+- **Mass** is the informational complexity of a region's unresolved possibility space — its *observation resistance*
+- **Gravity** is the spatial gradient of observation cost
+- **Dark matter** is the gravitational signature of informationally complex regions that lack baryonic substrate — observation resistance without matter
+- **Dark energy** may be the accelerating growth rate of the possibility space itself
 
 ## Interactive Visualisations
 
@@ -40,4 +47,4 @@ The key insight: because [Landauer's principle](https://en.wikipedia.org/wiki/La
 
 ---
 
-*"Time is the irreversible conversion of unobserved possibilities into physical records. Its local rate is determined by the thermodynamic cost of observation. Relativity is observation economics."*
+*"Time is the irreversible conversion of unobserved possibilities into physical records. Its local rate is determined by the thermodynamic cost of observation. Mass is observation resistance. Gravity is the gradient of that resistance. Dark matter is observation resistance without matter. Relativity is observation economics."*
