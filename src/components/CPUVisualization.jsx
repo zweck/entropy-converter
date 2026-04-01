@@ -357,7 +357,7 @@ function CPUStatsPanel({ t }) {
       </div>
 
       <div className="equation">
-        Observation → Record → Heat (E ≥ kT ln 2)
+        Observation → Record → Heat &nbsp;|&nbsp; Mass = complexity
       </div>
     </div>
   );
@@ -412,6 +412,16 @@ export default function CPUVisualization({ t, setT }) {
         <div className="legend-item">
           <span className="legend-color present"></span>
           <span>Execution unit: now-horizon</span>
+        </div>
+        <h4>Extended Analogies</h4>
+        <div className="legend-note" style={{ marginBottom: '4px' }}>
+          Mass → memory density / complexity per region
+        </div>
+        <div className="legend-note" style={{ marginBottom: '4px' }}>
+          Gravity → load balancing gradient
+        </div>
+        <div className="legend-note" style={{ marginBottom: '4px' }}>
+          Dark matter → allocated but unrendered structure
         </div>
         <h4>Landauer Principle</h4>
         <div className="legend-note">

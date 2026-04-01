@@ -13,7 +13,7 @@ function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>Time as Entropy Conversion</h1>
+        <h1>Time as Observation-Limited Entropy Conversion</h1>
         <nav className="nav">
           <button
             className={`nav-btn ${activeTab === 'entropy' ? 'active' : ''}`}

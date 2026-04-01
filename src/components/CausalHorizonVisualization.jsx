@@ -473,6 +473,10 @@ export default function CausalHorizonVisualization({ t, setT }) {
         <div className="legend-note">
           Expansion increases volume but contracts effective future
         </div>
+        <h4>Dark Matter Connection</h4>
+        <div className="legend-note">
+          Informationally complex regions create observation-cost gradients (gravity) without baryonic matter — dark matter as informational structure
+        </div>
       </div>
     </div>
   );

@@ -736,6 +736,13 @@ export default function BranchingSimulation() {
         <div className="legend-note">
           2. Pruning: unreachable branches removed
         </div>
+        <h4 style={{ marginTop: "12px" }}>Topology of Collapse</h4>
+        <div className="legend-note">
+          High-probability branches collapse first (cheaper). Low-probability branches persist as unresolved S<sub>info</sub>.
+        </div>
+        <div className="legend-note">
+          Mass = informational complexity (observation resistance). Gravity = cost gradient across branches.
+        </div>
       </div>
     </div>
   );

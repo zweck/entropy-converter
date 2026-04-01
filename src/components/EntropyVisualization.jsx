@@ -518,7 +518,7 @@ function StatsPanel({ t }) {
       </div>
 
       <div className="equation">
-        dS<sub>info</sub>/dt ∝ −O(t) (Landauer)
+        dS<sub>info</sub>/dt ∝ −O(t) &nbsp;|&nbsp; O ∝ Ė<sub>diss</sub> / k<sub>B</sub>T
       </div>
     </div>
   );
@@ -575,8 +575,15 @@ export default function EntropyVisualization({ t, setT }) {
           <span className="legend-color free"></span>
           <span>Far from horizon: free, high S<sub>info</sub></span>
         </div>
+        <h4>Local Now-Horizon</h4>
+        <div className="legend-note" style={{ marginBottom: '4px' }}>
+          Now-horizon is <em>local</em> — advances at different rates depending on observation cost (Landauer: E ≥ k<sub>B</sub>T ln 2)
+        </div>
+        <div className="legend-note" style={{ marginBottom: '4px' }}>
+          High energy density → expensive observation → slower time
+        </div>
         <div className="legend-note">
-          Observation capacity O(t) peaks at cosmic noon, then declines
+          Mass = observation resistance. Gravity = cost gradient.
         </div>
         <h4>Regions</h4>
         <div className="legend-item">
@@ -589,7 +596,7 @@ export default function EntropyVisualization({ t, setT }) {
         </div>
         <div className="legend-item">
           <span className="legend-color present"></span>
-          <span>Now-Horizon: observation boundary</span>
+          <span>Now-Horizon: local observation boundary</span>
         </div>
       </div>
     </div>
