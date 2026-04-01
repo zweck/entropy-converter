@@ -1,243 +1,448 @@
+import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 
+// Hash function for paper content
+async function hashContent(content) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(content);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// TTS player component
+function TTSPlayer({ sections, paperHash }) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentSection, setCurrentSection] = useState(0);
+  const [error, setError] = useState(null);
+  const audioRef = useRef(null);
+  const audioCacheRef = useRef({});
+
+  const fetchAudio = async (text, sectionIndex) => {
+    // Check memory cache first
+    if (audioCacheRef.current[sectionIndex]) {
+      return audioCacheRef.current[sectionIndex];
+    }
+
+    const response = await fetch('/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, section: sectionIndex, paperHash }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`TTS failed: ${response.status}`);
+    }
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    audioCacheRef.current[sectionIndex] = url;
+    return url;
+  };
+
+  const playSection = async (index) => {
+    if (index >= sections.length) {
+      setIsPlaying(false);
+      setCurrentSection(0);
+      return;
+    }
+
+    setCurrentSection(index);
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const audioUrl = await fetchAudio(sections[index].text, index);
+
+      if (audioRef.current) {
+        audioRef.current.src = audioUrl;
+        audioRef.current.play();
+      }
+    } catch (err) {
+      setError(err.message);
+      setIsPlaying(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePlay = () => {
+    if (isPlaying) {
+      audioRef.current?.pause();
+      setIsPlaying(false);
+    } else {
+      setIsPlaying(true);
+      playSection(currentSection);
+    }
+  };
+
+  const handleAudioEnded = () => {
+    if (isPlaying) {
+      playSection(currentSection + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    const prev = Math.max(0, currentSection - 1);
+    setCurrentSection(prev);
+    if (isPlaying) {
+      playSection(prev);
+    }
+  };
+
+  const handleNext = () => {
+    const next = Math.min(sections.length - 1, currentSection + 1);
+    setCurrentSection(next);
+    if (isPlaying) {
+      playSection(next);
+    }
+  };
+
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(audioCacheRef.current).forEach(url => {
+        URL.revokeObjectURL(url);
+      });
+    };
+  }, []);
+
+  return (
+    <div className="tts-player">
+      <audio ref={audioRef} onEnded={handleAudioEnded} />
+
+      <div className="tts-controls">
+        <button
+          className="tts-btn tts-nav"
+          onClick={handlePrev}
+          disabled={currentSection === 0}
+          title="Previous section"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+          </svg>
+        </button>
+
+        <button
+          className="tts-btn tts-play"
+          onClick={handlePlay}
+          disabled={isLoading}
+          title={isPlaying ? 'Pause' : 'Play'}
+        >
+          {isLoading ? (
+            <svg className="tts-spinner" viewBox="0 0 24 24" width="20" height="20">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" strokeDasharray="31.4" strokeLinecap="round">
+                <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+              </circle>
+            </svg>
+          ) : isPlaying ? (
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          )}
+        </button>
+
+        <button
+          className="tts-btn tts-nav"
+          onClick={handleNext}
+          disabled={currentSection === sections.length - 1}
+          title="Next section"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+          </svg>
+        </button>
+      </div>
+
+      <div className="tts-info">
+        <span className="tts-section">{sections[currentSection]?.title || `Section ${currentSection + 1}`}</span>
+        <span className="tts-progress">{currentSection + 1} / {sections.length}</span>
+      </div>
+
+      {error && <div className="tts-error">{error}</div>}
+    </div>
+  );
+}
+
+// Parse paper content into sections for TTS
+function parseSections(content) {
+  const sections = [];
+  const lines = content.split('\n');
+  let currentSection = { title: 'Introduction', text: '' };
+
+  for (const line of lines) {
+    if (line.startsWith('## ')) {
+      if (currentSection.text.trim()) {
+        sections.push(currentSection);
+      }
+      const title = line.replace(/^##\s*/, '').replace(/^\d+\.\s*/, '');
+      currentSection = { title, text: '' };
+    } else {
+      // Strip markdown/latex for TTS
+      const cleanLine = line
+        .replace(/\$\$[\s\S]*?\$\$/g, '') // Remove display math
+        .replace(/\$[^$]+\$/g, '') // Remove inline math
+        .replace(/\*\*([^*]+)\*\*/g, '$1') // Bold to plain
+        .replace(/\*([^*]+)\*/g, '$1') // Italic to plain
+        .replace(/`[^`]+`/g, '') // Remove code
+        .replace(/^#+\s*/, '') // Remove headers
+        .replace(/^>\s*/, '') // Remove blockquotes
+        .replace(/^-\s*/, '') // Remove list markers
+        .replace(/^\d+\.\s*/, '') // Remove numbered lists
+        .replace(/---/g, '') // Remove hr
+        .trim();
+
+      if (cleanLine) {
+        currentSection.text += cleanLine + ' ';
+      }
+    }
+  }
+
+  if (currentSection.text.trim()) {
+    sections.push(currentSection);
+  }
+
+  return sections;
+}
+
 const paperContent = `
-# Time as Entropy Conversion
-## A Dual-Entropy Model of the Arrow of Time
+# Time as Observation-Limited Entropy Conversion
 
 ---
 
 ## Abstract
 
-I propose a model of time in which the universe has a fixed total entropy budget, partitioned into two forms: **informational entropy** (the space of unrealised possibilities) and **thermodynamic entropy** (the disorder of realised physical configurations). Time is modelled as the ongoing **conversion of informational entropy into thermodynamic entropy**, occurring at the boundary we perceive as the present. Each collapse event reduces the future's informational entropy and forces an equal increase in thermodynamic entropy, conserving the total. This framework resolves the entropy paradox, explains the arrow of time, and aligns naturally with computational interpretations of physical law, including—but not requiring—simulation-theoretic perspectives.
+We propose a framework in which time is not a fundamental background parameter but an emergent physical process: the irreversible conversion of informational entropy into thermodynamic entropy through observation. Informational entropy is defined as the entropy associated with unrealised and unobserved physical possibilities, while thermodynamic entropy represents irreversible records embedded in matter and fields. The present moment is modelled as a "now-horizon," a boundary in possibility space where unobserved possibilities become irreversible history. Unlike static entropy-budget models, we identify observation capacity—constrained by thermodynamics, causal horizons, and physical memory bounds—as the rate-limiting mechanism of temporal evolution. Causal horizons prune reachable futures, accelerating informational entropy loss. Heat death is reinterpreted as the exhaustion of observation capacity, at which point informational collapse ceases and time halts.
 
 ---
 
 ## 1. Introduction
 
-Physics describes the Second Law of Thermodynamics as an empirical fact: **entropy increases with time**. But this leads to profound conceptual puzzles:
+The arrow of time remains one of the deepest unresolved problems in physics. The Second Law of Thermodynamics states that entropy increases with time, but does not explain why time has a direction, why the past is fixed, or why the future appears open.
 
-- Why did the universe begin in a low-entropy state?
-- Why is the past fixed and orderly, while the future is open and uncertain?
-- What determines the direction of time's arrow?
-
-This paper suggests a reframing:
-
-> **Time is the process by which the universe converts probability into immutability.**
-
-This leads naturally to a dual-entropy model.
+This work proposes that time is not a fundamental dimension, but an emergent process defined by irreversible observation. By unifying thermodynamics, information theory, quantum measurement, and cosmology, we model time as the process by which the universe converts unobserved possibilities into irreversible physical records.
 
 ---
 
-## 2. Two Entropies
+## 2. Dual Entropy Framework
 
-Define:
+We distinguish two forms of entropy:
 
-- $S_{\\text{info}}(t)$: **informational entropy** — entropy of unrealised future possibilities.
+- **Informational entropy** $S_{\\text{info}}$: entropy associated with unrealised and unobserved physical possibilities.
 
-- $S_{\\text{therm}}(t)$: **thermodynamic entropy** — entropy of the realised physical universe.
+- **Thermodynamic entropy** $S_{\\text{therm}}$: entropy associated with irreversible physical records embedded in matter, radiation, and fields.
 
-Assume:
-
-$$S_{\\text{total}} = S_{\\text{info}}(t) + S_{\\text{therm}}(t) = \\text{constant}$$
-
-This assumption aligns with the holographic bound and several modern formulations in quantum information theory.
+Informational entropy characterizes the openness of the future; thermodynamic entropy characterizes the fixedness of the past.
 
 ---
 
-## 3. Collapse as the Substance of Time
+## 3. Observation and Irreversibility
 
-The "present" is the boundary where many possible futures collapse into one actual world-line. This collapse reduces informational entropy:
+Observation is defined physically, not cognitively. Any irreversible interaction that records information in the environment constitutes an observation. This includes decoherence, scattering, measurement devices, stellar processes, and biological observers.
 
-$$\\Delta S_{\\text{info}} < 0$$
+By Landauer's principle, irreversible recording has a minimum thermodynamic cost:
 
-The past grows; the future contracts.
+$$E \\geq k_B T \\ln 2 \\quad \\text{per bit}$$
 
-At each collapse event:
-
-- A set of possible futures converges into **one realised state**.
-- That part of the future ceases to be probabilistic and becomes **past**.
-
-In this sense:
-
-- **Past**: fully collapsed, zero informational entropy about "what happened" (it is fixed).
-- **Present**: the boundary where collapse occurs.
-- **Future**: all remaining unrealised possibilities.
-
-Informational entropy is **spent**.
+Thus, whenever informational entropy collapses, thermodynamic entropy must increase. Observation is therefore the mechanism by which informational entropy is converted into thermodynamic entropy.
 
 ---
 
-## 4. Conservation and the Rise of Thermodynamic Entropy
+## 4. The Now-Horizon
 
-Given conservation:
+The present moment ("now") is defined as a horizon in possibility space where unobserved possibilities become irreversible records. This boundary has properties analogous to an event horizon:
 
-$$\\Delta S_{\\text{therm}} = -\\Delta S_{\\text{info}} > 0$$
+- Irreversibility
+- One-way information flow
+- Entropy generation
+- Separation of accessible and inaccessible states
 
-Thus:
+The now-horizon separates:
 
-> **Thermodynamic entropy increases because informational entropy is being lost due to collapse.**
+- **Future**: unobserved, high informational entropy
+- **Past**: observed, fixed, zero informational entropy
 
-The universe cannot "lose" the entropy associated with unrealised possibilities; instead, when possibilities are removed by collapse, their entropy is *re-expressed* as disorder in the physical configuration of the universe.
-
-The Second Law becomes a manifestation of informational entropy conversion.
-
----
-
-## 5. Shrinking Future, Increasing Density
-
-As collapse continues:
-
-- The volume of the future possibility space decreases
-- But the total informational entropy budget is fixed
-- So informational entropy becomes more densely packed
-
-Thermodynamic entropy rises because the universe must store the "cost" of collapse.
-
-This "pressure" manifests as an increasing tendency toward high-entropy physical configurations: the universe is *forced* into higher thermodynamic entropy states to account for the compressed uncertainty.
+Temporal flow is the propagation of this horizon through possibility space.
 
 ---
 
-## 6. The Arrow of Time
+## 5. Determinacy Gradient and Free Will
 
-Collapse is irreversible. Thus thermodynamic entropy inherits the direction of informational entropy loss.
+As informational entropy collapses near the now-horizon, the universe exhibits a gradient of determinacy:
 
-1. **Collapse is intrinsically one-way.**
-   Once possibilities become facts, they cannot be "un-collapsed"; the past is immutable by definition.
+- **Near the horizon**: highly constrained, nearly determined
+- **Far from the horizon**: highly undetermined, large branching space
 
-2. **Informational entropy monotonically decreases** as the future possibility space is consumed:
-
-$$\\frac{dS_{\\text{info}}}{dt} \\le 0$$
-
-3. **Thermodynamic entropy monotonically increases** as the physical universe absorbs the cost of collapse:
-
-$$\\frac{dS_{\\text{therm}}}{dt} \\ge 0$$
-
-Time flows from high uncertainty to fully committed certainty.
+This framework allows free will to be interpreted as influence over branch selection in high-entropy regions of possibility space.
 
 ---
 
-## 7. Cosmological Implications
+## 6. Causal Horizons and Possibility Pruning
 
-This perspective offers intuitive answers to several cosmological questions:
+Cosmic expansion produces causal horizons, beyond which events cannot influence an observer. As horizons isolate regions of spacetime, entire branches of possible futures become causally unreachable and are removed from the effective possibility space.
 
-- **Early universe** = maximal informational entropy, minimal physical entropy
-- **Heat death** = exhaustion of informational entropy; almost all possibilities have been collapsed into fixed records
-- **Cosmic acceleration** may be interpretable as informational pressure
+Informational entropy is therefore reduced by two mechanisms:
 
----
+1. **Collapse via observation** (local irreversibility)
+2. **Horizon isolation** (geometric pruning of reachable futures)
 
-## 8. Visual Model
-
-A 3D model can represent:
-
-- **Past** = crystallised region (orange particles, frozen in place)
-- **Present** = glowing conversion boundary (the "NOW" surface)
-- **Future** = shrinking, intensifying informational field (blue particles, increasingly excited)
-
-Use the **Visualization** tab to explore this model interactively.
+Spacetime expansion increases physical volume while contracting the effective future.
 
 ---
 
-## 9. Computation as Entropy Conversion
+## 7. Cosmological Observation Capacity and Temporal Scaling
 
-A striking realisation emerges when we consider what a **CPU** does:
+To render the framework empirically tractable, we introduce a physically grounded proxy for the universe's observation capacity $O(t)$. Observation capacity is defined as the maximum rate at which informational entropy can be irreversibly converted into thermodynamic records, constrained by thermodynamics, causal connectivity, and physical memory limits.
 
-> A CPU is a physical implementation of "NOW"—a machine that converts informational entropy into thermodynamic entropy.
+Temporal evolution is governed by the rate of irreversible record formation.
 
-Consider the instruction pipeline:
+### 7.1 Observation Capacity and Landauer Cost
 
-- **Pending instructions** represent *informational entropy*: possibilities that have not yet been realised. The program *could* branch many ways; the data *could* take many values.
+Landauer's principle states that any logically irreversible erasure or stabilization of information incurs a minimum thermodynamic cost:
 
-- **The execution unit** is the **present moment**: the point where possibility collapses into actuality. One specific instruction executes. One specific state is written.
+$$E \\geq k_B T \\ln 2 \\quad \\text{per bit}$$
 
-- **Executed instructions** become *immutable history*: the past states of the machine, now fixed.
+We therefore define the observation capacity as:
 
-- **Heat dissipation** is the thermodynamic cost: the entropy that must be released into the environment as possibilities collapse into facts.
+$$O(t) \\propto \\frac{\\dot{E}_{\\text{diss}}(t)}{k_B T(t) \\ln 2}$$
 
-This is not merely an analogy—it is the *same process* operating at different scales:
+where:
 
-$$\\text{CPU} \\equiv \\text{NOW}:\\quad S_{\\text{info}}^{\\text{instructions}} \\to S_{\\text{therm}}^{\\text{heat}}$$
+- $\\dot{E}_{\\text{diss}}(t)$ is the rate of irreversible free-energy dissipation
+- $T(t)$ is the ambient cosmic temperature
 
-Landauer's principle already tells us that erasing information has a minimum thermodynamic cost ($kT \\ln 2$ per bit). Our model suggests this is a specific instance of a universal principle: **all computation is entropy conversion**, and **all entropy conversion is a form of time**.
+This represents the maximum rate at which informational entropy can be converted into thermodynamic entropy.
 
----
+Temporal evolution is governed by:
 
-## 10. Simulation-Theoretic Interpretation
+$$\\frac{dS_{\\text{info}}}{dt} \\propto -O(t)$$
 
-Although this model does not assert the universe is a simulation, it reveals a computational structure underlying physical reality. Several features align naturally with familiar concepts from computation:
+implying that the rate of time's advance is tied directly to the universe's capacity to irreversibly commit physical records.
 
-### (A) The Present as an Execution Boundary
+### 7.2 Cosmological Proxy: Star Formation as Dissipation Channel
 
-In this model the present is the "entropy converter": the boundary where many possible futures collapse into one realised state. This resembles the *execution step* in computational systems, where a processor selects one branch of many potential code paths and commits the next state.
+As a first empirical approximation, we adopt the cosmic star-formation-rate density $\\dot{\\rho}_*(z)$ as a dominant channel of irreversible free-energy dissipation.
 
-If the universe were a computation, the present moment would correspond to the "tick" or "cycle" where state updates occur.
+A widely used empirical fit is the Madau–Dickinson parameterization:
 
-### (B) Finite Informational Entropy = Finite State Space
+$$\\dot{\\rho}_*(z) = 0.015 \\frac{(1+z)^{2.7}}{1 + \\left(\\frac{1+z}{2.9}\\right)^{5.6}}$$
 
-The assumption that the universe contains a fixed total entropy budget mirrors the finite-state constraint of any computable system. A universe with a finite Hilbert space, finite informational entropy, or holographic bound is structurally equivalent to a simulable system.
+The cosmic background temperature evolves as:
 
-This does not prove simulation; it shows **structural compatibility**.
+$$T(z) = T_0 (1+z)$$
 
-### (C) Collapse as Branch Resolution
+where $T_0$ is the present-day CMB temperature.
 
-Quantum collapse in this model plays the same functional role as branch prediction resolution in a CPU: many potential future states reduce to one committed path. The reduction of informational entropy mirrors the reduction of computational branching entropy.
+Substituting these relations:
 
-### (D) Thermodynamic Entropy as State-Update Cost
+$$O(z) \\propto \\frac{\\dot{\\rho}_*(z)}{1+z}$$
 
-When informational entropy decreases, thermodynamic entropy must rise. In computation, irreversible state updates incur unavoidable entropy costs (Landauer's principle).
+### 7.3 Predicted Temporal Dynamics
 
-The universe's increasing thermodynamic entropy can therefore be interpreted as:
+Using the proxy $O(z) \\propto \\dot{\\rho}_*(z)/(1+z)$, the framework predicts a non-monotonic temporal conversion rate across cosmic history, peaking near $z \\approx 1.5$.
 
-> A physical manifestation of the cost of committing new states as informational possibilities collapse.
+**Interpretation:**
 
-This is precisely what happens in simulated systems: writing to memory incurs entropy/energy cost.
+- **Early Universe** ($z \\gg 5$): High temperatures impose large Landauer costs per bit, and star formation is minimal. Observation capacity is low.
 
-### (E) An Interpretation Without Metaphysical Commitment
+- **Cosmic Noon** ($z \\approx 1$–$3$): Star formation peaks while temperatures are moderate, yielding maximal observation capacity and maximal informational entropy collapse.
 
-The alignment between the entropy-conversion model and computational architectures does not imply a conscious designer, digital substrate, or "simulation" in the science-fiction sense.
+- **Late Universe** ($z \\approx 0$): Star formation declines, reducing observation capacity despite lower Landauer costs.
 
-It may instead indicate:
+Thus, the effective rate of temporal evolution peaks during maximal structure formation and declines thereafter.
 
-- Computation is the fundamental structure of physical law
-- Physical law and computability are equivalent descriptions
-- Reality behaves computationally by necessity, not design
+### 7.4 Heat Death as Temporal Cessation
 
-This perspective is consonant with Wheeler's "It from Bit," the holographic principle, and quantum information theory.
+As the universe approaches thermodynamic equilibrium:
 
-### (F) A Minimal Simulation Hypothesis
+$$\\dot{E}_{\\text{diss}} \\to 0$$
 
-This model suggests a weaker and more philosophically grounded simulation hypothesis:
+and therefore:
 
-> **Regardless of whether our universe is *simulated*, it behaves as if its evolution is a computation converting informational entropy into thermodynamic entropy.**
+$$O(t) \\to 0 \\Rightarrow \\frac{dS_{\\text{info}}}{dt} \\to 0$$
 
-In this view, "simulation" is not an ontological claim but a structural one: **reality has the architecture of a computation.**
+In this limit, informational entropy no longer collapses, the now-horizon ceases to advance, and temporal evolution halts. Heat death is therefore interpreted as the exhaustion of observation capacity, not merely thermal uniformity.
 
----
+### 7.5 Extensions and Refinements
 
-## 11. Conclusion
+Future refinements may incorporate additional dissipation channels:
 
-By reframing time as the irreversible conversion of informational entropy into thermodynamic entropy, we obtain a unified explanation for the arrow of time, the increasing disorder of the universe, the apparent low entropy of the early cosmos, and the structure of quantum collapse.
+- Black hole accretion and mergers
+- AGN feedback
+- Large-scale structure formation shocks
+- Exotic dark-sector dissipation
 
-This framework also naturally exhibits computational characteristics. Whether or not the universe is literally a simulation, it behaves as a system performing continuous state updates under a conservation constraint.
-
-The present moment can thus be understood as the universe's "execution engine": a boundary that selects outcomes, commits history, and redistributes entropy to maintain global invariants.
-
-This view does not prove simulation theory, but it demonstrates that the underlying architecture of physical reality is computational in form—a possibility increasingly supported by modern theoretical physics.
+These may dominate entropy production at late times and refine $\\dot{E}_{\\text{diss}}(t)$.
 
 ---
 
-## Acknowledgments
+## 8. Heat Death as the End of Observation
 
-This model emerged from contemplating the deep connection between information, entropy, and the nature of time. It is offered as a conceptual framework rather than a rigorous physical theory.
+Heat death corresponds to the asymptotic limit in which no free energy gradients remain and no irreversible records can be formed. Observation ceases, informational entropy collapse halts, and time ends.
+
+---
+
+## 9. Landauer Correspondence
+
+This framework generalises Landauer's principle to cosmology. Each moment irreversibly erases unrealised possibilities and commits reality to a single history, incurring a thermodynamic cost. The arrow of time is the cumulative Landauer cost of erasing alternative futures.
+
+---
+
+## 10. Observers and Experience
+
+Conscious observers do not uniquely cause collapse; they locally instantiate observation and experience the now-horizon as temporal flow. The universe continuously observes itself through interaction; consciousness is the subsystem where observation becomes phenomenology.
+
+---
+
+## 11. Computational and Simulation-Theoretic Interpretation
+
+The structure of this framework is computational:
+
+- **Informational entropy** → branching execution paths
+- **Observation** → irreversible state commit
+- **Thermodynamic entropy** → computation cost
+- **Now-horizon** → execution frontier
+- **Heat death** → halting state
+
+Whether or not the universe is literally simulated, it behaves as a computation constrained by irreversibility.
+
+---
+
+## 12. Conclusion
+
+Time emerges as the irreversible conversion of unobserved possibilities into physical records. The present is a horizon where observation commits reality. Informational entropy is reduced by collapse and causal horizon isolation, while thermodynamic entropy records irreversible history.
+
+Unlike static entropy-budget models, this framework identifies observation capacity as the fundamental limiter of temporal evolution. When the universe can no longer observe—when free energy, causal connectivity, and memory capacity vanish—informational collapse ceases and time ends.
+
+---
+
+## Central Thesis
+
+> **Time is the irreversible conversion of unobserved possibilities into physical records, and its rate is limited by the universe's finite capacity to observe.**
 
 `;
 
+// Pre-compute sections (static)
+const sections = parseSections(paperContent);
+
 export default function Paper() {
+  const [paperHash, setPaperHash] = useState(null);
+
+  useEffect(() => {
+    hashContent(paperContent).then(setPaperHash);
+  }, []);
+
   return (
     <div className="paper-container">
+      {paperHash && <TTSPlayer sections={sections} paperHash={paperHash} />}
       <article className="paper-content">
         <ReactMarkdown
           remarkPlugins={[remarkMath]}

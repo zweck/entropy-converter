@@ -3,6 +3,19 @@ import { OrbitControls, Text } from "@react-three/drei";
 import { useRef, useMemo } from "react";
 import * as THREE from "three";
 
+// Observation capacity O(t) following Madau-Dickinson-like curve
+// Peaks at "cosmic noon" (t ≈ 0.3), low at Big Bang and Heat Death
+function observationCapacity(t) {
+  // Early universe: high Landauer cost, low star formation → low O
+  // Cosmic noon (t≈0.3): peak star formation, moderate temperature → max O
+  // Late universe: declining star formation → declining O
+  // Heat death: O → 0, no dissipation channels remain
+  const peak = 0.3;
+  const earlyFactor = Math.pow(t / peak, 1.5); // Rises from Big Bang
+  const lateFactor = Math.pow((1 - t) / (1 - peak), 0.8); // Falls toward heat death
+  return Math.min(earlyFactor, 1) * Math.min(lateFactor, 1);
+}
+
 function PastParticles({ count, t }) {
   const mesh = useRef();
   const dummy = useMemo(() => new THREE.Object3D(), []);
@@ -31,7 +44,7 @@ function PastParticles({ count, t }) {
     return temp;
   }, []);
 
-  // Past particles are static - frozen in their collapsed positions
+  // Past particles are static - frozen in their observed positions
   useFrame(() => {
     if (!mesh.current || count < 1) return;
 
@@ -42,7 +55,7 @@ function PastParticles({ count, t }) {
     for (let i = 0; i < count; i++) {
       const particle = particles[i];
 
-      // Position within past box - fixed, not moving
+      // Position within past box - fixed, immutable records
       dummy.position.set(
         pastStart + ((particle.x + 1) / 2) * pastWidth,
         particle.y * 0.8,
@@ -67,6 +80,7 @@ function PastParticles({ count, t }) {
 function FutureParticles({ count, t }) {
   const mesh = useRef();
   const dummy = useMemo(() => new THREE.Object3D(), []);
+  const colorArray = useRef(new Float32Array(count * 3));
 
   // Generate stable positions using hash-based distribution for true randomness
   const particles = useMemo(() => {
@@ -89,6 +103,11 @@ function FutureParticles({ count, t }) {
     return temp;
   }, [count]);
 
+  // Ensure color array is properly sized
+  useMemo(() => {
+    colorArray.current = new Float32Array(count * 3);
+  }, [count]);
+
   useFrame(({ clock }) => {
     if (!mesh.current) return;
     const time = clock.getElapsedTime();
@@ -97,37 +116,65 @@ function FutureParticles({ count, t }) {
     const futureWidth = 8 * futureFraction;
     const futureStart = -4 + 8 * t;
 
-    // Intensity increases as future shrinks
+    // Intensity increases as future shrinks - particles get more excited
     const intensity = 1 / futureFraction;
-    const chaos = 0.05 + 0.1 * Math.min(intensity - 1, 5);
+    const baseChaos = 0.05 + 0.1 * Math.min(intensity - 1, 5);
     const speedMult = 1 + Math.min(intensity - 1, 8);
 
     particles.forEach((particle, i) => {
       // Base position - x is normalized 0-1 within future box, y/z centered
-      const baseX = futureStart + ((particle.x + 1) / 2) * futureWidth;
+      const normalizedX = (particle.x + 1) / 2; // 0 = near NOW, 1 = far from NOW
+      const baseX = futureStart + normalizedX * futureWidth;
       const baseY = particle.y * 0.8;
       const baseZ = particle.z * 0.8;
 
-      // Add chaotic motion that increases with intensity
+      // DETERMINISM GRADIENT: Near NOW = more determined (less chaos), Far = less determined (more chaos)
+      // This represents the gradient described in the paper - near horizon is constrained
+      const freedomFactor = normalizedX; // 0 near NOW, 1 far from NOW
+
+      // Chaos scales with distance from NOW - more freedom = more chaos
+      const localChaos = baseChaos * (0.2 + freedomFactor * 1.5);
+      const localSpeed = speedMult * (0.3 + freedomFactor * 1.2);
+
+      // Add chaotic motion that increases with distance from NOW
       dummy.position.set(
-        baseX + Math.sin(time * particle.speed * speedMult + particle.offset) * chaos,
-        baseY + Math.cos(time * particle.speed * speedMult * 0.8 + particle.offset * 1.3) * chaos,
-        baseZ + Math.sin(time * particle.speed * speedMult * 0.6 + particle.offset * 0.7) * chaos
+        baseX + Math.sin(time * particle.speed * localSpeed + particle.offset) * localChaos,
+        baseY + Math.cos(time * particle.speed * localSpeed * 0.8 + particle.offset * 1.3) * localChaos,
+        baseZ + Math.sin(time * particle.speed * localSpeed * 0.6 + particle.offset * 0.7) * localChaos
       );
 
-      // Scale increases with excitation
-      dummy.scale.setScalar(0.035 + Math.min(intensity * 0.005, 0.03));
+      // Scale: determined particles are smaller/denser, free particles are larger/diffuse
+      const baseScale = 0.035 + Math.min(intensity * 0.005, 0.03);
+      dummy.scale.setScalar(baseScale * (0.7 + freedomFactor * 0.6));
       dummy.updateMatrix();
       mesh.current.setMatrixAt(i, dummy.matrix);
+
+      // Color gradient: cyan (determined, near NOW) -> purple/magenta (free, far from NOW)
+      // Near NOW: #00aaff (cyan) - possibilities being observed/constrained
+      // Far from NOW: #aa44ff (purple) - high informational entropy, unobserved
+      const r = freedomFactor * 0.67; // 0 -> 0.67
+      const g = 0.67 - freedomFactor * 0.4; // 0.67 -> 0.27
+      const b = 1.0;
+      colorArray.current[i * 3] = r;
+      colorArray.current[i * 3 + 1] = g;
+      colorArray.current[i * 3 + 2] = b;
     });
 
     mesh.current.instanceMatrix.needsUpdate = true;
+    if (mesh.current.geometry.attributes.color) {
+      mesh.current.geometry.attributes.color.needsUpdate = true;
+    }
   });
 
   return (
     <instancedMesh ref={mesh} args={[null, null, count]} frustumCulled={false}>
-      <boxGeometry args={[1, 1, 1]} />
-      <meshBasicMaterial color="#00aaff" />
+      <boxGeometry args={[1, 1, 1]}>
+        <instancedBufferAttribute
+          attach="attributes-color"
+          args={[colorArray.current, 3]}
+        />
+      </boxGeometry>
+      <meshBasicMaterial vertexColors />
     </instancedMesh>
   );
 }
@@ -189,6 +236,59 @@ function BigBangSingularity({ visible }) {
   );
 }
 
+// Determinism gradient overlay for the future box
+function DeterminismGradient({ t }) {
+  const meshRef = useRef();
+  const futureFraction = Math.max(1 - t, 0.01);
+  const futureWidth = 8 * futureFraction;
+  const futureStart = -4 + 8 * t;
+  const futureCenter = futureStart + futureWidth / 2;
+
+  // Create gradient texture
+  const gradientTexture = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 1;
+    const ctx = canvas.getContext('2d');
+
+    // Gradient from left (near NOW, determined) to right (far, free/unobserved)
+    const gradient = ctx.createLinearGradient(0, 0, 256, 0);
+    gradient.addColorStop(0, 'rgba(0, 170, 255, 0.3)');    // Cyan - observed/determined
+    gradient.addColorStop(0.5, 'rgba(100, 100, 255, 0.15)'); // Mid transition
+    gradient.addColorStop(1, 'rgba(170, 68, 255, 0.25)');   // Purple - unobserved/free
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 256, 1);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+    return texture;
+  }, []);
+
+  useFrame(({ clock }) => {
+    if (meshRef.current) {
+      // Subtle shimmer effect
+      const shimmer = 0.95 + 0.1 * Math.sin(clock.getElapsedTime() * 0.5);
+      meshRef.current.material.opacity = 0.2 * shimmer;
+    }
+  });
+
+  if (futureFraction < 0.02) return null;
+
+  return (
+    <mesh ref={meshRef} position={[futureCenter, 0, 0]}>
+      <boxGeometry args={[futureWidth, 1.95, 1.95]} />
+      <meshBasicMaterial
+        map={gradientTexture}
+        transparent
+        opacity={0.2}
+        side={THREE.DoubleSide}
+        depthWrite={false}
+      />
+    </mesh>
+  );
+}
+
 function EntropyScene({ t }) {
   const presentRef = useRef();
 
@@ -201,6 +301,7 @@ function EntropyScene({ t }) {
 
   const pastFraction = t;
   const futureFraction = 1 - t;
+  const futureWidth = 8 * futureFraction;
   const infoEntropyDensity = futureFraction > 0.01 ? 1 / futureFraction : 100;
   const thermoEntropy = t;
 
@@ -218,7 +319,7 @@ function EntropyScene({ t }) {
         <meshBasicMaterial color="#666" />
       </mesh>
 
-      {/* Past volume - semi-transparent box */}
+      {/* Past volume - observed, irreversible records */}
       {pastFraction > 0.01 && (
         <mesh position={[-4 + 4 * pastFraction, 0, 0]}>
           <boxGeometry args={[8 * pastFraction, 2, 2]} />
@@ -241,7 +342,7 @@ function EntropyScene({ t }) {
         </lineSegments>
       )}
 
-      {/* Future volume */}
+      {/* Future volume - unobserved possibilities */}
       {futureFraction > 0.01 && (
         <mesh position={[4 - 4 * futureFraction, 0, 0]}>
           <boxGeometry args={[8 * futureFraction, 2, 2]} />
@@ -264,7 +365,7 @@ function EntropyScene({ t }) {
         </lineSegments>
       )}
 
-      {/* Present frontier */}
+      {/* Present frontier - the Now-Horizon where observation occurs */}
       <mesh ref={presentRef} position={[-4 + 8 * pastFraction, 0, 0]}>
         <boxGeometry args={[0.05, 2.2, 2.2]} />
         <meshStandardMaterial
@@ -279,15 +380,18 @@ function EntropyScene({ t }) {
       {/* Big Bang singularity */}
       <BigBangSingularity visible={t < 0.05} />
 
-      {/* Past: frozen particles - collapsed states, count increases as entropy converts */}
+      {/* Past: observed states - irreversible physical records */}
       {pastFraction > 0.01 && (
         <PastParticles count={Math.floor(600 * pastFraction)} t={t} />
       )}
 
-      {/* Future: particle count decreases as info entropy converts to thermo entropy */}
+      {/* Future: unobserved possibilities - informational entropy */}
       {futureFraction > 0.01 && (
         <FutureParticles count={Math.floor(600 * futureFraction)} t={t} />
       )}
+
+      {/* Determinism gradient: shows how possibilities become observed near NOW */}
+      <DeterminismGradient t={t} />
 
       {/* Labels */}
       {t < 0.05 && (
@@ -307,7 +411,7 @@ function EntropyScene({ t }) {
           color="#ff8844"
           anchorX="center"
         >
-          PAST
+          OBSERVED
         </Text>
       )}
       <Text
@@ -316,7 +420,7 @@ function EntropyScene({ t }) {
         color="#ffffff"
         anchorX="center"
       >
-        NOW
+        NOW-HORIZON
       </Text>
       {futureFraction > 0.05 && (
         <Text
@@ -325,8 +429,38 @@ function EntropyScene({ t }) {
           color="#44aaff"
           anchorX="center"
         >
-          FUTURE
+          UNOBSERVED
         </Text>
+      )}
+
+      {/* Determinism gradient labels */}
+      {futureFraction > 0.15 && (
+        <>
+          <Text
+            position={[-4 + 8 * t + futureWidth * 0.12, 1.4, 0]}
+            fontSize={0.15}
+            color="#00aaff"
+            anchorX="center"
+          >
+            DETERMINED
+          </Text>
+          <Text
+            position={[-4 + 8 * t + futureWidth * 0.88, 1.4, 0]}
+            fontSize={0.15}
+            color="#aa44ff"
+            anchorX="center"
+          >
+            FREE
+          </Text>
+          <Text
+            position={[4 - 4 * futureFraction, 1.65, 0]}
+            fontSize={0.1}
+            color="#8888aa"
+            anchorX="center"
+          >
+            ← being observed | yet to be observed →
+          </Text>
+        </>
       )}
     </>
   );
@@ -337,14 +471,14 @@ function StatsPanel({ t }) {
   const infoEntropy = futureFraction > 0.01 ? futureFraction : 0;
   const infoEntropyDensity = futureFraction > 0.01 ? 1 / futureFraction : Infinity;
   const thermoEntropy = t;
-  const totalEntropy = 1;
+  const obsCapacity = observationCapacity(t);
 
   return (
     <div className="stats-panel">
-      <h3>Entropy Conversion</h3>
+      <h3>Observation-Limited Conversion</h3>
 
       <div className="stat-row">
-        <span className="stat-label">S<sub>info</sub> <small>(future)</small></span>
+        <span className="stat-label">S<sub>info</sub> <small>(unobserved)</small></span>
         <span className="stat-value">{infoEntropy.toFixed(2)}</span>
         <div className="stat-bar">
           <div className="stat-fill info" style={{ width: `${infoEntropy * 100}%` }} />
@@ -352,7 +486,7 @@ function StatsPanel({ t }) {
       </div>
 
       <div className="stat-row">
-        <span className="stat-label">S<sub>therm</sub> <small>(past)</small></span>
+        <span className="stat-label">S<sub>therm</sub> <small>(observed)</small></span>
         <span className="stat-value">{thermoEntropy.toFixed(2)}</span>
         <div className="stat-bar">
           <div className="stat-fill thermo" style={{ width: `${thermoEntropy * 100}%` }} />
@@ -360,15 +494,18 @@ function StatsPanel({ t }) {
       </div>
 
       <div className="stat-row">
-        <span className="stat-label">S<sub>total</sub></span>
-        <span className="stat-value">{totalEntropy.toFixed(2)}</span>
+        <span className="stat-label">O(t) <small>(capacity)</small></span>
+        <span className="stat-value">{obsCapacity.toFixed(2)}</span>
         <div className="stat-bar">
-          <div className="stat-fill total" style={{ width: '100%' }} />
+          <div className="stat-fill capacity" style={{
+            width: `${obsCapacity * 100}%`,
+            background: 'linear-gradient(90deg, #00ff88, #00aaff)'
+          }} />
         </div>
       </div>
 
       <div className="stat-row">
-        <span className="stat-label">Density <small>(pressure)</small></span>
+        <span className="stat-label">Density</span>
         <span className="stat-value">
           {infoEntropyDensity === Infinity ? "∞" : infoEntropyDensity.toFixed(2)}
         </span>
@@ -381,7 +518,7 @@ function StatsPanel({ t }) {
       </div>
 
       <div className="equation">
-        NOW converts S<sub>info</sub> → S<sub>therm</sub>
+        dS<sub>info</sub>/dt ∝ −O(t) (Landauer)
       </div>
     </div>
   );
@@ -402,7 +539,7 @@ export default function EntropyVisualization({ t, setT }) {
 
       <div className="controls-overlay">
         <div className="slider-container">
-          <label>Time Progression</label>
+          <label>Cosmic Time</label>
           <input
             type="range"
             min={0}
@@ -420,27 +557,39 @@ export default function EntropyVisualization({ t, setT }) {
       </div>
 
       <div className="legend">
-        <h4>Particles</h4>
+        <h4>Physical Records</h4>
         <div className="legend-item">
           <span className="legend-color past"></span>
-          <span>Collapsed events (what has happened)</span>
+          <span>Observed states (irreversible records)</span>
         </div>
         <div className="legend-item">
           <span className="legend-color future"></span>
-          <span>Possible states (what could happen)</span>
+          <span>Unobserved possibilities</span>
         </div>
-        <h4>Areas</h4>
+        <h4>Determinacy Gradient</h4>
+        <div className="legend-item">
+          <span className="legend-color determined"></span>
+          <span>Near horizon: constrained, nearly determined</span>
+        </div>
+        <div className="legend-item">
+          <span className="legend-color free"></span>
+          <span>Far from horizon: free, high S<sub>info</sub></span>
+        </div>
+        <div className="legend-note">
+          Observation capacity O(t) peaks at cosmic noon, then declines
+        </div>
+        <h4>Regions</h4>
         <div className="legend-item">
           <span className="legend-color past"></span>
-          <span>Past: thermodynamic entropy (fixed)</span>
+          <span>Past: S<sub>therm</sub> (fixed, zero S<sub>info</sub>)</span>
         </div>
         <div className="legend-item">
           <span className="legend-color future"></span>
-          <span>Future: available entropy space (shrinking)</span>
+          <span>Future: S<sub>info</sub> (shrinking)</span>
         </div>
         <div className="legend-item">
           <span className="legend-color present"></span>
-          <span>NOW: collapse frontier</span>
+          <span>Now-Horizon: observation boundary</span>
         </div>
       </div>
     </div>

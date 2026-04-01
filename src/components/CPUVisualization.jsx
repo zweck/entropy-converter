@@ -3,63 +3,6 @@ import { OrbitControls, Text } from "@react-three/drei";
 import { useRef, useMemo } from "react";
 import * as THREE from "three";
 
-function InstructionGrid({ t }) {
-  const gridSize = 8; // 8x8 grid = 64 instructions
-  const totalInstructions = gridSize * gridSize;
-  const executedCount = Math.floor(t * totalInstructions);
-  const mesh = useRef();
-  const dummy = useMemo(() => new THREE.Object3D(), []);
-
-  useFrame(({ clock }) => {
-    if (!mesh.current) return;
-    const time = clock.getElapsedTime();
-
-    for (let i = 0; i < totalInstructions; i++) {
-      const row = Math.floor(i / gridSize);
-      const col = i % gridSize;
-
-      // Position in grid above CPU
-      const x = (col - gridSize / 2 + 0.5) * 0.25;
-      const z = (row - gridSize / 2 + 0.5) * 0.25;
-      const y = 1.8;
-
-      const isExecuted = i < executedCount;
-      const isProcessing = i === executedCount;
-
-      if (isExecuted) {
-        // Move to executed area (below CPU)
-        dummy.position.set(
-          (col - gridSize / 2 + 0.5) * 0.2,
-          -1.2 - (row * 0.15),
-          (Math.random() - 0.5) * 0.1
-        );
-        dummy.scale.setScalar(0.08);
-      } else if (isProcessing) {
-        // Pulsing at the CPU core
-        const pulse = 1 + 0.3 * Math.sin(time * 10);
-        dummy.position.set(0, 0.5, 0);
-        dummy.scale.setScalar(0.15 * pulse);
-      } else {
-        // Pending in grid
-        dummy.position.set(x, y, z);
-        dummy.scale.setScalar(0.1);
-      }
-
-      dummy.updateMatrix();
-      mesh.current.setMatrixAt(i, dummy.matrix);
-    }
-
-    mesh.current.instanceMatrix.needsUpdate = true;
-  });
-
-  return (
-    <instancedMesh ref={mesh} args={[null, null, totalInstructions]} frustumCulled={false}>
-      <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color="#00aaff" emissive="#0066ff" emissiveIntensity={0.5} />
-    </instancedMesh>
-  );
-}
-
 function ExecutedInstructions({ t }) {
   const gridSize = 8;
   const totalInstructions = gridSize * gridSize;
@@ -164,7 +107,7 @@ function CPUChip({ t }) {
         </mesh>
       ))}
 
-      {/* NOW - Execution unit (glowing center) */}
+      {/* NOW-HORIZON - Execution unit (glowing center) where observation occurs */}
       <mesh position={[0, 0.2, 0]}>
         <boxGeometry args={[0.25, 0.15, 0.25]} />
         <meshStandardMaterial
@@ -250,7 +193,7 @@ function HeatParticles({ t }) {
 
     particles.forEach((particle, i) => {
       if (i < visibleCount) {
-        // Rise up from heat sink
+        // Rise up from heat sink - Landauer dissipation
         const yOffset = (time * particle.speed * 0.5 + particle.phase) % 1.5;
         dummy.position.set(
           particle.x + Math.sin(time * particle.speed + particle.phase) * 0.05,
@@ -301,12 +244,12 @@ function PendingInstructionGrid({ t }) {
         dummy.position.set(0, -100, 0);
         dummy.scale.setScalar(0);
       } else if (isProcessing) {
-        // At the NOW point
+        // At the NOW-HORIZON point - being observed
         const pulse = 1 + 0.3 * Math.sin(time * 10);
         dummy.position.set(0, 0.15, 0);
         dummy.scale.setScalar(0.08 * pulse);
       } else {
-        // In pending grid above CPU
+        // In pending grid above CPU - unobserved possibilities
         const x = (col - gridSize / 2 + 0.5) * 0.15;
         const z = (row - gridSize / 2 + 0.5) * 0.15;
         dummy.position.set(x, 1.2, z);
@@ -343,29 +286,86 @@ function CPUScene({ t }) {
 
       {/* Labels */}
       <Text position={[0, 1.55, 0]} fontSize={0.09} color="#00aaff">
-        PENDING
+        UNOBSERVED
       </Text>
       <Text position={[0, 1.42, 0]} fontSize={0.05} color="#555">
-        (possible states)
+        (S_info: possible states)
       </Text>
 
       <Text position={[0.7, 0.1, 0]} fontSize={0.06} color="#ffffff">
-        NOW
+        NOW-HORIZON
       </Text>
 
       <Text position={[0, -0.65, 0]} fontSize={0.08} color="#ff8844">
-        EXECUTED
+        OBSERVED
       </Text>
       <Text position={[0, -0.76, 0]} fontSize={0.05} color="#555">
-        (collapsed events)
+        (S_therm: irreversible records)
+      </Text>
+
+      {/* Heat label */}
+      <Text position={[0.8, 0.8, 0]} fontSize={0.05} color="#ff6600">
+        Landauer heat
+      </Text>
+      <Text position={[0.8, 0.7, 0]} fontSize={0.04} color="#555">
+        E ≥ kT ln(2)
       </Text>
     </>
   );
 }
 
-export default function CPUVisualization({ t }) {
+function CPUStatsPanel({ t }) {
+  const gridSize = 8;
+  const totalInstructions = gridSize * gridSize;
+  const executedCount = Math.floor(t * totalInstructions);
+  const pendingCount = totalInstructions - executedCount;
+  const heatGenerated = t;
+  // Landauer minimum: kT ln(2) ≈ 0.017 eV at room temp ≈ 2.87 × 10^-21 J
+  const landauerCost = executedCount * 0.017; // symbolic eV per bit
+
   return (
-    <div className="cpu-visualization">
+    <div className="stats-panel">
+      <h3>Computational Observation</h3>
+
+      <div className="stat-row">
+        <span className="stat-label">S<sub>info</sub> <small>(pending)</small></span>
+        <span className="stat-value">{pendingCount}</span>
+        <div className="stat-bar">
+          <div className="stat-fill info" style={{ width: `${(pendingCount / totalInstructions) * 100}%` }} />
+        </div>
+      </div>
+
+      <div className="stat-row">
+        <span className="stat-label">S<sub>therm</sub> <small>(executed)</small></span>
+        <span className="stat-value">{executedCount}</span>
+        <div className="stat-bar">
+          <div className="stat-fill thermo" style={{ width: `${(executedCount / totalInstructions) * 100}%` }} />
+        </div>
+      </div>
+
+      <div className="stat-row">
+        <span className="stat-label">Heat <small>(Landauer)</small></span>
+        <span className="stat-value">{(heatGenerated * 100).toFixed(0)}%</span>
+        <div className="stat-bar">
+          <div className="stat-fill density" style={{ width: `${heatGenerated * 100}%` }} />
+        </div>
+      </div>
+
+      <div className="stat-row">
+        <span className="stat-label">Min Cost <small>(kT ln 2)</small></span>
+        <span className="stat-value">{landauerCost.toFixed(2)} eV</span>
+      </div>
+
+      <div className="equation">
+        Observation → Record → Heat (E ≥ kT ln 2)
+      </div>
+    </div>
+  );
+}
+
+export default function CPUVisualization({ t, setT }) {
+  return (
+    <div className="visualization-container cpu-visualization">
       <Canvas camera={{ position: [3, 2, 3], fov: 50 }}>
         <OrbitControls
           enablePan={false}
@@ -374,6 +374,50 @@ export default function CPUVisualization({ t }) {
         />
         <CPUScene t={t} />
       </Canvas>
+
+      <div className="controls-overlay">
+        {setT && (
+          <div className="slider-container">
+            <label>Execution / Observation</label>
+            <input
+              type="range"
+              min={0}
+              max={0.99}
+              step={0.01}
+              value={t}
+              onChange={(e) => setT(parseFloat(e.target.value))}
+            />
+            <div className="slider-labels">
+              <span>Start</span>
+              <span>Complete</span>
+            </div>
+          </div>
+        )}
+        <CPUStatsPanel t={t} />
+      </div>
+
+      <div className="legend">
+        <h4>Computational Model</h4>
+        <div className="legend-note" style={{ marginBottom: '8px' }}>
+          CPU as a physical now-horizon
+        </div>
+        <div className="legend-item">
+          <span className="legend-color future"></span>
+          <span>Pending: unobserved (S<sub>info</sub>)</span>
+        </div>
+        <div className="legend-item">
+          <span className="legend-color past"></span>
+          <span>Executed: observed (S<sub>therm</sub>)</span>
+        </div>
+        <div className="legend-item">
+          <span className="legend-color present"></span>
+          <span>Execution unit: now-horizon</span>
+        </div>
+        <h4>Landauer Principle</h4>
+        <div className="legend-note">
+          Irreversible observation requires minimum energy dissipation: E ≥ k<sub>B</sub>T ln(2) per bit
+        </div>
+      </div>
     </div>
   );
 }

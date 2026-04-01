@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import EntropyVisualization from './components/EntropyVisualization';
 import CPUVisualization from './components/CPUVisualization';
+import CausalHorizonVisualization from './components/CausalHorizonVisualization';
+import BranchingSimulation from './components/BranchingSimulation';
 import Paper from './components/Paper';
 import './App.css';
 
 function App() {
-  const [activeTab, setActiveTab] = useState('visualization');
+  const [activeTab, setActiveTab] = useState('entropy');
   const [t, setT] = useState(0);
-  const [showCPU, setShowCPU] = useState(true);
 
   return (
     <div className="app">
@@ -15,10 +16,28 @@ function App() {
         <h1>Time as Entropy Conversion</h1>
         <nav className="nav">
           <button
-            className={`nav-btn ${activeTab === 'visualization' ? 'active' : ''}`}
-            onClick={() => setActiveTab('visualization')}
+            className={`nav-btn ${activeTab === 'entropy' ? 'active' : ''}`}
+            onClick={() => setActiveTab('entropy')}
           >
-            Visualization
+            Entropy
+          </button>
+          <button
+            className={`nav-btn ${activeTab === 'horizons' ? 'active' : ''}`}
+            onClick={() => setActiveTab('horizons')}
+          >
+            Causal Horizons
+          </button>
+          <button
+            className={`nav-btn ${activeTab === 'cpu' ? 'active' : ''}`}
+            onClick={() => setActiveTab('cpu')}
+          >
+            CPU
+          </button>
+          <button
+            className={`nav-btn ${activeTab === 'simulation' ? 'active' : ''}`}
+            onClick={() => setActiveTab('simulation')}
+          >
+            Simulation
           </button>
           <button
             className={`nav-btn ${activeTab === 'paper' ? 'active' : ''}`}
@@ -30,28 +49,27 @@ function App() {
       </header>
 
       <main className="main">
-        {activeTab === 'visualization' ? (
-          <div className={`visualization-split ${showCPU ? 'dual' : 'single'}`}>
-            <div className="viz-panel universe-panel">
-              <div className="panel-label">Universe</div>
-              <EntropyVisualization t={t} setT={setT} />
-            </div>
-            {showCPU && (
-              <div className="viz-panel cpu-panel">
-                <div className="panel-label">CPU</div>
-                <CPUVisualization t={t} />
-              </div>
-            )}
-            <button
-              className="toggle-cpu-btn"
-              onClick={() => setShowCPU(!showCPU)}
-            >
-              {showCPU ? 'Hide CPU' : 'Show CPU'}
-            </button>
+        {activeTab === 'entropy' && (
+          <div className="viz-panel full-panel">
+            <EntropyVisualization t={t} setT={setT} />
           </div>
-        ) : (
-          <Paper />
         )}
+        {activeTab === 'horizons' && (
+          <div className="viz-panel full-panel horizon-panel">
+            <CausalHorizonVisualization t={t} setT={setT} />
+          </div>
+        )}
+        {activeTab === 'cpu' && (
+          <div className="viz-panel full-panel cpu-panel">
+            <CPUVisualization t={t} setT={setT} />
+          </div>
+        )}
+        {activeTab === 'simulation' && (
+          <div className="viz-panel full-panel">
+            <BranchingSimulation />
+          </div>
+        )}
+        {activeTab === 'paper' && <Paper />}
       </main>
     </div>
   );

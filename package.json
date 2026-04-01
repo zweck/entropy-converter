@@ -6,9 +6,11 @@
   "scripts": {
     "start": "vite",
     "dev": "vite",
+    "dev:full": "npm run build && wrangler pages dev dist --ai",
+    "dev:watch": "concurrently \"vite build --watch\" \"wrangler pages dev dist --ai --port 8788\"",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
+    "preview": "wrangler pages dev dist --ai",
     "deploy": "npm run build && wrangler pages deploy dist"
   },
   "dependencies": {
@@ -28,10 +30,12 @@
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
+    "concurrently": "^9.1.2",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "wrangler": "^4.18.0"
   }
 }
