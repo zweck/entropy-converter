@@ -29,6 +29,7 @@ html, body, #root {
   background: linear-gradient(180deg, rgba(10, 15, 30, 0.95) 0%, rgba(5, 7, 16, 0.9) 100%);
   border-bottom: 1px solid rgba(100, 150, 255, 0.1);
   z-index: 100;
+  flex-shrink: 0;
 }
 
 .header h1 {
@@ -72,6 +73,7 @@ html, body, #root {
   flex: 1;
   overflow: hidden;
   position: relative;
+  min-height: 0;
 }
 
 /* Visualization styles */
@@ -89,6 +91,8 @@ html, body, #root {
   flex-direction: column;
   gap: 1rem;
   z-index: 10;
+  max-height: calc(100% - 2rem);
+  overflow-y: auto;
 }
 
 .slider-container {
@@ -232,6 +236,8 @@ html, body, #root {
   border-radius: 12px;
   border: 1px solid rgba(100, 150, 255, 0.15);
   backdrop-filter: blur(10px);
+  max-height: calc(100% - 2rem);
+  overflow-y: auto;
 }
 
 .legend h4 {
@@ -259,6 +265,7 @@ html, body, #root {
   width: 12px;
   height: 12px;
   border-radius: 3px;
+  flex-shrink: 0;
 }
 
 .legend-color.past {
@@ -772,7 +779,32 @@ html, body, #root {
   color: #88aaff;
 }
 
-/* Responsive - Small tablets (768px - 1024px) */
+/* Causal Horizon Visualization */
+.causal-horizon-viz {
+  position: relative;
+}
+
+.horizon-legend {
+  bottom: 1rem;
+  left: 1rem;
+}
+
+.legend-color.pruned {
+  background: #443366;
+}
+
+.legend-color.connected {
+  background: #00ffaa;
+}
+
+.legend-color.lost {
+  background: #ff4400;
+  opacity: 0.4;
+}
+
+/* =============================================
+   RESPONSIVE: Tablet (768px - 1024px)
+   ============================================= */
 @media (max-width: 1024px) and (min-width: 769px) {
   .header {
     padding: 0.75rem 1.25rem;
@@ -787,23 +819,27 @@ html, body, #root {
     font-size: 0.85rem;
   }
 
-  /* Move controls to bottom on tablet to not cover visualization */
+  /* Controls bar at bottom of viz area */
   .controls-overlay {
+    position: absolute;
     top: auto;
     bottom: 0;
     left: 0;
     right: 0;
     flex-direction: row;
+    flex-wrap: wrap;
     gap: 0.5rem;
     padding: 0.5rem 0.75rem;
     background: rgba(5, 7, 16, 0.95);
     border-top: 1px solid rgba(100, 150, 255, 0.2);
     backdrop-filter: blur(10px);
+    max-height: 40%;
+    overflow-y: auto;
   }
 
   .slider-container {
     min-width: unset;
-    flex: 1;
+    flex: 1 1 200px;
     padding: 0.5rem 0.75rem;
     background: transparent;
     border: none;
@@ -817,7 +853,7 @@ html, body, #root {
 
   .stats-panel {
     min-width: unset;
-    flex: 1;
+    flex: 1 1 200px;
     padding: 0.5rem 0.75rem;
     background: transparent;
     border: none;
@@ -847,9 +883,35 @@ html, body, #root {
     display: none;
   }
 
-  /* Hide legend on tablet to avoid covering viz */
   .legend {
     display: none;
+  }
+
+  .controls-panel {
+    min-width: unset;
+    flex: 1 1 220px;
+    padding: 0.5rem 0.75rem;
+    background: transparent;
+    border: none;
+    backdrop-filter: none;
+  }
+
+  .control-group {
+    margin-bottom: 0.5rem;
+  }
+
+  .control-btn {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .slider-group {
+    margin-bottom: 0.5rem;
+  }
+
+  .preset-group {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
   }
 
   /* Split view adjustments for tablet */
@@ -906,53 +968,89 @@ html, body, #root {
   .tts-section {
     font-size: 0.8rem;
   }
-
-  /* Causal horizon canvas wrapper */
-  .causal-horizon-viz .canvas-wrapper canvas {
-    max-height: calc(100vh - 200px);
-  }
 }
 
-/* Responsive - Mobile (max-width: 768px) */
+/* =============================================
+   RESPONSIVE: Mobile (max-width: 768px)
+   ============================================= */
 @media (max-width: 768px) {
+  /* Allow scrolling on mobile - this is the key fix */
+  html, body, #root {
+    overflow: visible;
+    height: auto;
+    min-height: 100%;
+  }
+
+  .app {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
   .header {
     flex-direction: column;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
+    gap: 0.5rem;
+    padding: 0.6rem 0.75rem;
   }
 
   .header h1 {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
   .nav {
-    gap: 0.3rem;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .nav-btn {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
+    padding: 0.35rem 0.6rem;
+    font-size: 0.75rem;
   }
 
+  /* Main area becomes scrollable */
+  .main {
+    flex: none;
+    overflow: visible;
+    min-height: 0;
+  }
+
+  /* Visualization container: stacked flow layout instead of absolute overlays */
+  .visualization-container {
+    height: auto;
+    min-height: calc(100vh - 100px);
+    min-height: calc(100dvh - 100px);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* R3F Canvas wrapper - the first div child (React Three Fiber renders a wrapper div) */
+  .visualization-container > div:first-child {
+    flex-shrink: 0;
+    min-height: 300px;
+    height: 55dvh;
+    height: 55vh;
+  }
+
+  /* Controls become static, stacking below the canvas */
   .controls-overlay {
-    top: auto;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    flex-direction: row;
+    position: static;
+    flex-direction: column;
     gap: 0.5rem;
-    padding: 0.5rem;
-    background: rgba(5, 7, 16, 0.95);
+    padding: 0.75rem;
+    background: rgba(5, 7, 16, 0.98);
     border-top: 1px solid rgba(100, 150, 255, 0.2);
-    backdrop-filter: blur(10px);
+    max-height: none;
+    overflow: visible;
   }
 
   .slider-container {
     min-width: unset;
-    flex: 1;
     padding: 0.5rem 0.75rem;
     background: transparent;
     border: none;
+    border-bottom: 1px solid rgba(100, 150, 255, 0.08);
     backdrop-filter: none;
   }
 
@@ -977,7 +1075,6 @@ html, body, #root {
 
   .stats-panel {
     min-width: unset;
-    flex: 1;
     padding: 0.5rem 0.75rem;
     background: transparent;
     border: none;
@@ -990,13 +1087,13 @@ html, body, #root {
   }
 
   .stat-row {
-    grid-template-columns: 50px 35px 1fr;
+    grid-template-columns: 60px 40px 1fr;
     gap: 0.4rem;
     margin-bottom: 0.35rem;
   }
 
   .stat-label {
-    font-size: 0.65rem;
+    font-size: 0.7rem;
   }
 
   .stat-label small {
@@ -1019,6 +1116,46 @@ html, body, #root {
     display: none;
   }
 
+  /* Controls panel (simulation tab) - compact on mobile */
+  .controls-panel {
+    min-width: unset;
+    padding: 0.5rem 0.75rem;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(100, 150, 255, 0.08);
+    backdrop-filter: none;
+  }
+
+  .control-group {
+    margin-bottom: 0.5rem;
+    gap: 0.4rem;
+  }
+
+  .control-btn {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .slider-group {
+    margin-bottom: 0.5rem;
+  }
+
+  .slider-group label {
+    font-size: 0.7rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .preset-group {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+  }
+
+  .preset-group select {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  /* Paper */
   .paper-content {
     padding: 2rem 1rem 3rem;
   }
@@ -1027,6 +1164,7 @@ html, body, #root {
     font-size: 1.8rem;
   }
 
+  /* TTS */
   .tts-player {
     padding: 0.5rem 1rem;
     gap: 0.75rem;
@@ -1050,18 +1188,23 @@ html, body, #root {
     font-size: 0.65rem;
   }
 
+  /* Split views on mobile - stack vertically */
   .visualization-split.dual {
     flex-direction: column;
+    height: auto;
+    min-height: calc(100vh - 100px);
   }
 
   .visualization-split.dual .universe-panel {
     width: 100%;
-    height: 60%;
+    height: 50vh;
+    flex-shrink: 0;
   }
 
   .visualization-split.dual .cpu-panel {
     width: 100%;
-    height: 40%;
+    height: 40vh;
+    flex-shrink: 0;
   }
 
   .universe-panel {
@@ -1084,12 +1227,19 @@ html, body, #root {
   }
 
   /* Stacked layout on mobile */
+  .visualization-layout {
+    height: auto;
+    min-height: calc(100vh - 100px);
+  }
+
   .visualization-row.top-row {
-    height: 55%;
+    height: 50vh;
+    flex-shrink: 0;
   }
 
   .visualization-row.bottom-row {
-    height: 45%;
+    height: 40vh;
+    flex-shrink: 0;
   }
 
   .viz-toggle-buttons {
@@ -1135,48 +1285,36 @@ html, body, #root {
   }
 }
 
-/* Causal Horizon Visualization */
-.causal-horizon-viz {
-  position: relative;
-}
-
-.horizon-legend {
-  bottom: 1rem;
-  left: 1rem;
-}
-
-.legend-color.pruned {
-  background: #443366;
-}
-
-.legend-color.connected {
-  background: #00ffaa;
-}
-
-.legend-color.lost {
-  background: #ff4400;
-  opacity: 0.4;
-}
-
-/* Extra small screens */
+/* =============================================
+   RESPONSIVE: Extra small (max-width: 480px)
+   ============================================= */
 @media (max-width: 480px) {
   .header {
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 0.5rem;
   }
 
   .header h1 {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+  }
+
+  .nav-btn {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  /* Slightly shorter canvas on very small screens */
+  .visualization-container > div:first-child {
+    height: 50dvh;
+    height: 50vh;
+    min-height: 280px;
   }
 
   .controls-overlay {
-    flex-direction: column;
-    gap: 0;
     padding: 0.4rem 0.5rem;
   }
 
   .slider-container {
     padding: 0.4rem 0.5rem;
-    border-bottom: 1px solid rgba(100, 150, 255, 0.1);
   }
 
   .stats-panel {
@@ -1184,11 +1322,11 @@ html, body, #root {
   }
 
   .stats-panel h3 {
-    display: none;
+    font-size: 0.65rem;
   }
 
   .stat-row {
-    grid-template-columns: 45px 30px 1fr;
+    grid-template-columns: 45px 35px 1fr;
     gap: 0.3rem;
     margin-bottom: 0.25rem;
   }
@@ -1199,6 +1337,15 @@ html, body, #root {
 
   .stat-value {
     font-size: 0.65rem;
+  }
+
+  .controls-panel {
+    padding: 0.4rem 0.5rem;
+  }
+
+  .control-btn {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.75rem;
   }
 
   .paper-content {
@@ -1263,5 +1410,21 @@ html, body, #root {
 
   .tts-error {
     font-size: 0.65rem;
+  }
+}
+
+/* Scrollbar for mobile overflow areas */
+@media (max-width: 768px) {
+  body::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  body::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  body::-webkit-scrollbar-thumb {
+    background: rgba(100, 150, 255, 0.2);
+    border-radius: 2px;
   }
 }
