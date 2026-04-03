@@ -999,13 +999,23 @@ html, body, #root {
 
   .nav {
     gap: 0.25rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .nav::-webkit-scrollbar {
+    display: none;
   }
 
   .nav-btn {
-    padding: 0.35rem 0.6rem;
-    font-size: 0.75rem;
+    padding: 0.35rem 0.55rem;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   /* Main area becomes scrollable */
@@ -1028,9 +1038,9 @@ html, body, #root {
   /* R3F Canvas wrapper - the first div child (React Three Fiber renders a wrapper div) */
   .visualization-container > div:first-child {
     flex-shrink: 0;
-    min-height: 300px;
-    height: 55dvh;
-    height: 55vh;
+    min-height: 350px;
+    height: 65dvh;
+    height: 65vh;
   }
 
   /* Controls become static, stacking below the canvas */
@@ -1302,11 +1312,11 @@ html, body, #root {
     font-size: 0.7rem;
   }
 
-  /* Slightly shorter canvas on very small screens */
+  /* Canvas on very small screens - still give enough room */
   .visualization-container > div:first-child {
-    height: 50dvh;
-    height: 50vh;
-    min-height: 280px;
+    height: 60dvh;
+    height: 60vh;
+    min-height: 320px;
   }
 
   .controls-overlay {

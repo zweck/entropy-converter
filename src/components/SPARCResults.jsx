@@ -50,10 +50,10 @@ export default function SPARCResults() {
       <div style={{
         maxWidth: '900px',
         margin: '0 auto',
-        padding: '2rem 2rem 5rem',
+        padding: 'clamp(1rem, 3vw, 2rem) clamp(0.75rem, 3vw, 2rem) 5rem',
       }}>
         <h1 style={{
-          fontSize: '2rem',
+          fontSize: 'clamp(1.4rem, 4vw, 2rem)',
           fontWeight: 700,
           marginBottom: '0.5rem',
           background: 'linear-gradient(135deg, #fff 0%, #88aaff 100%)',
@@ -70,7 +70,7 @@ export default function SPARCResults() {
         {/* Summary stats cards */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
           gap: '1rem',
           marginBottom: '2.5rem',
         }}>
