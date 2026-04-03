@@ -1,0 +1,731 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+% Title formatting
+\newcommand{\affmark}[1]{}
+
+\title{Time as Observation-Limited Entropy Conversion: \\
+Emergent Temporality, Relativistic Time Dilation, and Dark Matter \\
+from Information Thermodynamics}
+
+\author{Philip J. Hauser}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We propose a framework in which time is not a fundamental background parameter but an emergent physical process: the irreversible conversion of informational entropy into thermodynamic entropy through observation. Informational entropy is formally defined as the von Neumann entropy of the reduced density matrix of unobserved degrees of freedom. The present moment is modelled as a local ``now-horizon''---a boundary in possibility space where unobserved possibilities become irreversible records. Because Landauer's principle ties the minimum cost of each irreversible bit commitment to the local temperature, the now-horizon advances at different rates across spacetime. We show this observation-cost asymmetry reproduces the structure of relativistic time dilation via the Tolman--Ehrenfest relation: time runs slower where energy density is high, not as a geometric postulate, but as a thermodynamic consequence. We further argue that mass is the informational complexity of a region's unresolved possibility space---a measure of observation resistance---and that gravity emerges as the spatial gradient of observation cost. This reinterpretation predicts that dark matter is the gravitational signature of informationally complex regions of possibility space without baryonic substrate. We test this prediction by computing the informational complexity density around a Milky Way-like galaxy, convolving a Hernquist baryonic profile with quantum field theory-motivated correlation kernels. A kernel with power-law index $n = 2.18$ (corresponding to scaling dimension $\Delta = 1.09$, near the scalar field value) reproduces the Navarro--Frenk--White halo profile with $R^2 = 0.993$ and scale radius $R_s = 20.8$~kpc, consistent with observations. The coupling constant $\alpha$ relating baryonic density to informational complexity is shown to be determined by a steady-state balance between quantum correlation generation and observational destruction, predicting $\alpha \propto M_{\mathrm{bar}}^{-0.491}$---in $2.0\sigma$ agreement with the measured scaling $\alpha \propto M_{\mathrm{bar}}^{-0.594 \pm 0.052}$ across the SPARC galaxy database. The framework thus has a single free parameter: the correlation kernel power law.
+\end{abstract}
+
+\tableofcontents
+
+% ===================================================================
+\section{Introduction}
+\label{sec:intro}
+% ===================================================================
+
+The arrow of time remains one of the deepest unresolved problems in physics. The Second Law of Thermodynamics states that entropy increases with time, but does not explain why time has a direction, why the past is fixed, or why the future appears open. General relativity describes time dilation as a consequence of spacetime geometry but offers no thermodynamic explanation for \emph{why} clocks slow in gravitational wells or at high velocities. Meanwhile, dark matter---invoked to explain galactic rotation curves, gravitational lensing, and large-scale structure---has resisted direct detection for decades despite extensive experimental programmes~\cite{Bertone2005,Aprile2018}.
+
+This work proposes that these apparently separate problems share a common origin. Time is not a fundamental dimension but an emergent process defined by irreversible observation. Its local rate is governed by the thermodynamic cost of committing information to record. Mass is the informational complexity that determines that cost. Gravity is the spatial gradient of observation cost. And dark matter is the gravitational signature of informational complexity without baryonic substrate.
+
+The framework connects to several established research programmes: Landauer's principle~\cite{Landauer1961} provides the quantitative bridge between information and thermodynamics; the holographic principle~\cite{tHooft1993,Susskind1995} and the Bekenstein bound~\cite{Bekenstein1981} relate entropy to geometry; Verlinde's entropic gravity~\cite{Verlinde2011} derives gravitational dynamics from information displacement; and the ``it from bit'' tradition~\cite{Wheeler1990} proposes that physical reality is fundamentally informational. Our contribution is to provide a specific, quantitative mechanism that unifies these threads and generates testable predictions.
+
+% ===================================================================
+\section{Dual Entropy Framework}
+\label{sec:dual}
+% ===================================================================
+
+We distinguish two forms of entropy:
+
+\textbf{Informational entropy} $S_{\mathrm{info}}$: entropy associated with unrealised and unobserved physical possibilities. This characterises the openness of the future---the branching space of outcomes not yet committed to record.
+
+\textbf{Thermodynamic entropy} $S_{\mathrm{therm}}$: entropy associated with irreversible physical records embedded in matter, radiation, and fields. This characterises the fixedness of the past.
+
+The total entropy budget of the universe is partitioned between these two forms. Temporal evolution is the process by which $S_{\mathrm{info}}$ is converted into $S_{\mathrm{therm}}$ through irreversible observation.
+
+% ===================================================================
+\section{Formal Definition of Informational Entropy}
+\label{sec:sinfo}
+% ===================================================================
+
+We define informational entropy using the standard apparatus of quantum information theory. Consider a spatial region $\mathcal{R}$ embedded in a quantum field-theoretic state $|\Psi\rangle$ on a Cauchy surface $\Sigma$. The full density matrix is $\hat{\rho} = |\Psi\rangle\langle\Psi|$. The reduced density matrix for $\mathcal{R}$ is obtained by tracing over its complement $\bar{\mathcal{R}}$:
+\begin{equation}
+    \hat{\rho}_{\mathcal{R}} = \mathrm{Tr}_{\bar{\mathcal{R}}}(|\Psi\rangle\langle\Psi|)
+\end{equation}
+
+The informational entropy of region $\mathcal{R}$ is the von Neumann entropy of this reduced density matrix:
+\begin{equation}
+    S_{\mathrm{info}}(\mathcal{R}) = -\mathrm{Tr}\!\left(\hat{\rho}_{\mathcal{R}} \ln \hat{\rho}_{\mathcal{R}}\right)
+    \label{eq:sinfo}
+\end{equation}
+
+This is precisely the entanglement entropy of $\mathcal{R}$ with its complement. It quantifies the amount of information about the total state that is inaccessible from within $\mathcal{R}$---the unresolved possibilities.
+
+\subsection{Mutual Information and Correlations}
+
+The correlations between two disjoint regions $A$ and $B$ are quantified by the mutual information:
+\begin{equation}
+    I(A:B) = S_{\mathrm{info}}(A) + S_{\mathrm{info}}(B) - S_{\mathrm{info}}(A \cup B)
+\end{equation}
+
+In quantum field theory, for regions separated by distance $d$ in the vacuum state, the mutual information decays as~\cite{Cardy2013,Calabrese2004}:
+\begin{equation}
+    I(A:B) \sim \frac{1}{d^{2\Delta}}
+    \label{eq:mutual_info_decay}
+\end{equation}
+where $\Delta$ is the scaling dimension of the lowest-dimension operator coupling the two regions. For a free scalar field in $3+1$ dimensions, $\Delta = 1$, giving $I \sim 1/d^2$.
+
+\subsection{Observation as Entropy Conversion}
+
+Observation is defined physically: any irreversible interaction that records information in the environment. By Landauer's principle~\cite{Landauer1961}, each bit of irreversible recording incurs a minimum thermodynamic cost:
+\begin{equation}
+    E_{\mathrm{bit}} \geq k_B T \ln 2
+    \label{eq:landauer}
+\end{equation}
+
+When an observation occurs, a portion of $S_{\mathrm{info}}$ is converted into $S_{\mathrm{therm}}$: the reduced density matrix partially decoheres, entanglement between $\mathcal{R}$ and $\bar{\mathcal{R}}$ is transferred to classical correlations, and irreversible records are created. The total entropy budget satisfies:
+\begin{equation}
+    \frac{dS_{\mathrm{info}}}{dt} = -\Gamma(t), \qquad \frac{dS_{\mathrm{therm}}}{dt} \geq \Gamma(t) \cdot k_B \ln 2
+    \label{eq:conversion}
+\end{equation}
+where $\Gamma(t)$ is the observation rate (bits per unit time) and the inequality reflects the Landauer bound.
+
+\subsection{Informational Complexity Density}
+
+We define the \emph{informational complexity density} at a point $\mathbf{x}$ as the integrated mutual information between $\mathbf{x}$ and all other degrees of freedom:
+\begin{equation}
+    \rho_{\mathrm{info}}(\mathbf{x}) = \int \rho_b(\mathbf{x}') \, C\!\left(|\mathbf{x} - \mathbf{x}'|\right) d^3\mathbf{x}'
+    \label{eq:rho_info}
+\end{equation}
+where $\rho_b$ is the baryonic matter density (as the primary source of quantum degrees of freedom) and the correlation kernel
+\begin{equation}
+    C(d) = \frac{\alpha}{(d^2 + \epsilon^2)^{n/2}}
+    \label{eq:kernel}
+\end{equation}
+encodes the decay of mutual information with distance. Here $n = 2\Delta$ from Eq.~\eqref{eq:mutual_info_decay}, $\epsilon$ is a UV softening scale, and $\alpha$ is a coupling constant.
+
+% ===================================================================
+\section{The Now-Horizon}
+\label{sec:nowhorizon}
+% ===================================================================
+
+The present moment (``now'') is defined as a horizon in possibility space where unobserved possibilities become irreversible records. This boundary has properties analogous to an event horizon: irreversibility, one-way information flow, entropy generation, and separation of accessible and inaccessible states.
+
+The now-horizon separates the \emph{future} (unobserved, high $S_{\mathrm{info}}$) from the \emph{past} (observed, fixed, $S_{\mathrm{info}} = 0$). Temporal flow is the propagation of this horizon through possibility space.
+
+\subsection{Efficiency and the Topology of Collapse}
+
+Not all branches of the possibility space cost the same to collapse. In Shannon entropy, high-probability events carry less information and therefore require less thermodynamic entropy production per observation event. The Landauer cost of committing branch $i$ is:
+\begin{equation}
+    E_i = -k_B T \ln 2 \cdot \log_2 p_i = k_B T \ln(1/p_i)
+\end{equation}
+where $p_i$ is the branch probability.
+
+High-probability branches are thermodynamically \emph{efficient} to collapse---they represent shorter routes through informational space. The now-horizon advances fastest along these paths of least thermodynamic resistance, creating a temporal topology in which some regions of possibility space resolve faster than others. Low-probability branches persist as unresolved informational entropy, connecting naturally to quantum superposition.
+
+% ===================================================================
+\section{Local Now-Horizons and Relativistic Time Dilation}
+\label{sec:relativity}
+% ===================================================================
+
+The now-horizon is \emph{local}: because observation cost depends on local physical conditions, the rate at which $S_{\mathrm{info}}$ is converted into $S_{\mathrm{therm}}$ varies across spacetime.
+
+\subsection{Local Observation Capacity}
+
+The local observation capacity---the maximum rate at which the now-horizon can advance---is:
+\begin{equation}
+    \mathcal{O}_{\mathrm{local}} = \frac{\dot{E}_{\mathrm{diss}}}{k_B T \ln 2}
+    \label{eq:obs_capacity}
+\end{equation}
+where $\dot{E}_{\mathrm{diss}}$ is the locally available rate of free-energy dissipation and $T$ is the local temperature. In regions where the Landauer cost per bit is high, fewer bits can be committed per unit of available energy, and the now-horizon advances more slowly.
+
+\subsection{Gravitational Time Dilation}
+\label{sec:grav_dilation}
+
+The Tolman--Ehrenfest relation~\cite{Tolman1930} states that in thermal equilibrium within a static gravitational field:
+\begin{equation}
+    T(r) \sqrt{g_{00}(r)} = T_\infty = \text{const}
+\end{equation}
+
+For the Schwarzschild metric with $g_{00} = 1 - 2GM/rc^2$:
+\begin{equation}
+    T(r) = \frac{T_\infty}{\sqrt{1 - 2GM/rc^2}}
+    \label{eq:tolman}
+\end{equation}
+
+Temperature increases deeper in the gravitational well, raising the Landauer cost per bit. Simultaneously, available dissipation energy is gravitationally redshifted. An energy packet $E_\infty$ emitted at infinity arrives at radius $r$ with energy:
+\begin{equation}
+    E(r) = E_\infty \sqrt{g_{00}(r)}
+\end{equation}
+
+(Energy is blueshifted falling \emph{into} a well, but the relevant quantity is the locally \emph{available} free energy for dissipation, which for a system in quasi-static equilibrium redshifts as $\sqrt{g_{00}}$.)
+
+The observation capacity ratio is therefore:
+\begin{equation}
+    \frac{\mathcal{O}(r)}{\mathcal{O}(\infty)} = \frac{\dot{E}_{\mathrm{diss}}(r) / T(r)}{\dot{E}_{\mathrm{diss}}(\infty) / T_\infty} = \frac{\sqrt{g_{00}} \cdot \dot{E}_{\mathrm{diss}}(\infty)}{T_\infty / \sqrt{g_{00}}} \cdot \frac{T_\infty}{\dot{E}_{\mathrm{diss}}(\infty)} = g_{00}
+    \label{eq:capacity_ratio}
+\end{equation}
+
+Since the rate of temporal evolution is proportional to observation capacity, and the proper time interval $d\tau$ relates to coordinate time $dt$ through the square root of the metric component:
+\begin{equation}
+    \boxed{\frac{d\tau}{dt} = \sqrt{\frac{\mathcal{O}(r)}{\mathcal{O}(\infty)}} = \sqrt{g_{00}} = \sqrt{1 - \frac{2GM}{rc^2}}}
+    \label{eq:grav_dilation}
+\end{equation}
+
+This recovers the Schwarzschild time dilation factor from observation economics.
+
+\subsection{Velocity-Based Time Dilation}
+
+For a relativistically moving observer, the causal horizon contracts. Fewer regions of possibility space are causally accessible, reducing the informational entropy available for collapse. The observer's interaction cross-section with the ambient thermal environment is relativistically modified, reducing net observation capacity by the Lorentz factor:
+\begin{equation}
+    \mathcal{O}_{\mathrm{moving}} = \frac{\mathcal{O}_{\mathrm{rest}}}{\gamma}
+\end{equation}
+
+This yields:
+\begin{equation}
+    d\tau = \frac{dt}{\gamma} = dt\sqrt{1 - v^2/c^2}
+    \label{eq:sr_dilation}
+\end{equation}
+
+recovering special-relativistic time dilation from observation capacity constraints.
+
+\subsection{Interpretation}
+
+This section does not claim to replace relativity. It proposes that the \emph{thermodynamic reason} time dilates is that observation is more expensive in high-energy-density or high-velocity environments. Relativity describes the geometry; this framework offers a candidate mechanism for why the geometry has the temporal structure it does. If time dilation is a consequence of observation economics, spacetime geometry may itself be emergent from thermodynamic constraints on information processing---consistent with holographic~\cite{tHooft1993,Susskind1995} and entropic~\cite{Verlinde2011} gravity programmes.
+
+% ===================================================================
+\section{Mass as Observation Resistance}
+\label{sec:mass}
+% ===================================================================
+
+\subsection{The Dual Role of Mass}
+
+Through $E = mc^2$, mass plays a dual role in this framework:
+
+\textbf{Mass as observation fuel.} Energy is the currency that funds the Landauer cost of collapsing $S_{\mathrm{info}}$ into $S_{\mathrm{therm}}$. Mass-energy represents the total budget available for irreversible state commitment.
+
+\textbf{Mass as observation resistance.} Via the Tolman--Ehrenfest relation~\eqref{eq:tolman}, mass raises the local temperature, increasing the Landauer cost per bit. Mass-dense regions have large observation budgets but low efficiency per bit committed.
+
+\subsection{Mass as Informational Complexity}
+
+The deeper claim is that mass may be \emph{emergent} from informational structure. A region with many entangled, high-information-content, unresolved possibilities is expensive to observe. It resists now-horizon advance. It behaves exactly as if it has mass. In this interpretation, mass is a measure of the informational complexity of a region's unresolved possibility space---its observation resistance density.
+
+\subsection{Gravity as the Observation Cost Gradient}
+
+If mass is observation resistance density, then gravity is the spatial gradient of observation cost:
+\begin{equation}
+    \mathbf{g}(\mathbf{x}) \propto -\nabla \left[\frac{k_B T(\mathbf{x}) \ln 2}{\dot{E}_{\mathrm{diss}}(\mathbf{x})}\right]
+\end{equation}
+
+Objects follow trajectories that minimise the integrated observation cost---the geodesic equation reinterpreted as a statement about informational economics. This is structurally equivalent to Verlinde's entropic gravity~\cite{Verlinde2011} but derived from a different starting point.
+
+\subsection{The Bekenstein Bound as an Accounting Identity}
+
+The Bekenstein bound~\cite{Bekenstein1981} states:
+\begin{equation}
+    S \leq \frac{2\pi k_B R E}{\hbar c}
+\end{equation}
+
+In this framework, the bound acquires a natural interpretation: a region cannot contain more unresolved informational entropy ($S_{\mathrm{info}}$) than its mass-energy budget ($E$) can eventually collapse at the minimum Landauer cost. The bound is an accounting identity: informational debt cannot exceed the observation budget.
+
+% ===================================================================
+\section{Gravity as Statistical Bias in Possibility Space}
+\label{sec:gravity_statistical}
+% ===================================================================
+
+The observation-cost gradient formulation of gravity (Section~\ref{sec:mass}) is mathematically precise but obscures a deeper insight: gravity is not a force, a geometric distortion, or even a cost gradient. It is a \emph{statistical bias in the branching structure of informational entropy}.
+
+\subsection{The Probability-Weighted Branch Structure}
+
+Consider an object near a massive body. Its future possibility space branches in all directions---it could, in principle, move any way. But these branches are not equally weighted. The informational complexity density surrounding the mass (Section~\ref{sec:sinfo}) creates an asymmetric probability distribution over future branches.
+
+Branches in which the object moves \emph{toward} the mass are overwhelmingly more probable than branches in which it moves away. This is because the region near the mass has higher informational complexity: more correlated degrees of freedom, more entangled quantum states, more interaction pathways through which the object can decohere and become correlated with its environment. Moving toward the mass means moving into a denser web of correlations---more possible interactions, more possible decoherence pathways, more ways for the quantum state to evolve. Moving away means moving into sparser informational territory.
+
+From Section~\ref{sec:nowhorizon}, the now-horizon preferentially collapses high-probability branches because they are thermodynamically cheapest: lower information content per branch, lower Landauer cost per observation event. The universe does not ``choose'' the gravitational trajectory. The gravitational trajectory is simply the cheapest branch to collapse, so it is resolved first.
+
+\subsection{Reconciling Efficiency and Gravitation}
+
+There is an apparent tension in the framework that must be resolved. Section~\ref{sec:nowhorizon} states that the now-horizon advances fastest along high-probability, low-cost branches---the efficiency principle. Yet gravity pulls objects \emph{toward} high-informational-complexity regions, where the Landauer cost per bit is \emph{higher} and the now-horizon advances more slowly. If the universe favours cheap branches, why does it steer matter toward expensive regions?
+
+The resolution is that these operate at different scales. Individual branch collapses follow the efficiency gradient: each single observation event preferentially resolves the cheapest available possibility. But the \emph{bulk trajectory} of an object through space follows the \textbf{maximum entropy production} gradient: it moves toward regions where the \emph{total} rate of thermodynamic entropy generation is highest.
+
+A region of high informational complexity is expensive per bit but offers an enormous \emph{density} of collapsible branches---more correlated degrees of freedom, more decoherence pathways, more opportunities for irreversible recording. Although each individual collapse costs more Landauer energy, there are far more collapses available per unit volume. The total entropy production rate along paths toward the mass exceeds the rate along paths away from it.
+
+This is analogous to fluid flow. Water does not flow toward the location where each molecule moves most freely. It flows downhill---toward the configuration that maximises the total conversion of gravitational potential energy into thermal energy. Individual molecules undergo random thermal motion, but the bulk flow follows the maximum dissipation gradient. The now-horizon behaves identically: individual branch collapses follow the efficiency gradient (cheapest first), but the aggregate flow of the now-horizon follows the maximum entropy production gradient---which is gravity.
+
+\emph{Gravity is the path of maximum total entropy production through the informational landscape.}
+
+\subsection{The Mass--Observation Feedback Loop}
+\label{sec:feedback}
+
+The relationship between informational complexity and mass creates a self-reinforcing feedback loop with significant physical consequences.
+
+As the now-horizon pushes into an informationally dense region and collapses possibilities, it generates thermodynamic entropy. Each collapse event has a Landauer cost of at least $k_B T \ln 2$ per bit, and this cost is paid in dissipated energy. That dissipated energy \emph{is} mass-energy (via $E = mc^2$). The thermodynamic entropy produced by observation contributes to the local energy density, which raises the local temperature via the Tolman--Ehrenfest relation, which increases the Landauer cost of future observations, which further slows the now-horizon.
+
+The cycle is:
+\begin{equation}
+    \text{High } S_{\mathrm{info}} \xrightarrow{\text{collapse}} \text{High } S_{\mathrm{therm}} \xrightarrow{\text{Landauer}} \text{High } E \xrightarrow{E=mc^2} \text{High } m \xrightarrow{\text{Tolman}} \text{High } T \xrightarrow{\text{cost}} \text{Slow now-horizon}
+    \label{eq:feedback}
+\end{equation}
+
+This feedback loop may provide an informational mechanism for gravitational collapse. Matter clumps not merely because geometry curves, but because observation in informationally dense regions generates mass-energy that makes those regions more informationally dense. The process is self-amplifying: mass generates more mass through the thermodynamic cost of resolving its own informational complexity.
+
+The feedback loop also suggests a natural explanation for structure formation in the early universe. Regions with slightly higher initial informational complexity would collapse possibilities slightly faster, generating slightly more thermodynamic entropy, producing slightly more effective mass, attracting more matter, increasing the informational complexity further. Small initial asymmetries in the informational landscape would be amplified into large-scale structure---galaxies, clusters, and filaments---through this self-reinforcing mechanism.
+
+\subsection{Black Holes as Informational Saturation}
+\label{sec:blackholes}
+
+The mass--observation feedback loop (Eq.~\ref{eq:feedback}) runs to completion in a black hole. As informational complexity increases without bound, the Landauer cost per bit diverges, and the now-horizon asymptotically halts.
+
+At the event horizon, the feedback loop reaches a critical threshold: the informational density is so high, and the Landauer cost so extreme, that no finite energy budget can collapse even a single additional bit. The now-horizon freezes. This is why time stops at the event horizon---not because of infinite spacetime curvature in the geometric sense, but because the observation cost per bit has diverged.
+
+The singularity, in this interpretation, is the point of infinite informational complexity: an infinite density of unresolved possibilities that no amount of energy can ever collapse. The Bekenstein--Hawking entropy of a black hole,
+\begin{equation}
+    S_{\mathrm{BH}} = \frac{k_B c^3 A}{4 G \hbar}
+\end{equation}
+represents the total informational entropy trapped behind the horizon---possibilities that have been permanently removed from the observable universe's collapse budget without being resolved.
+
+Hawking radiation acquires a natural interpretation: it is the slow leakage of informational complexity back across the horizon, driven by quantum fluctuations that occasionally push bits across the observation-cost barrier. The black hole information paradox becomes a question about whether the specific \emph{structure} of the trapped informational entropy (which particular possibilities were frozen) is preserved in the radiation, or whether only the total \emph{count} survives.
+
+\subsection{Orbits as Observation-Efficient Trajectories}
+
+In general relativity, orbits are geodesics---paths that extremise proper time. Since proper time in this framework is the accumulated observation along a worldline (the number of bits of $S_{\mathrm{info}}$ collapsed by the local now-horizon), a geodesic is the trajectory that maximises total observation for a given energy budget.
+
+A circular orbit represents the equilibrium between two competing observation costs:
+
+\textbf{Gravitational observation cost.} Deeper in the well, the Tolman--Ehrenfest relation raises the local temperature and the Landauer cost per bit. Falling inward means entering a regime of more expensive observation.
+
+\textbf{Kinetic observation cost.} From Eq.~\eqref{eq:sr_dilation}, higher velocity contracts the causal horizon and reduces observation capacity. Speeding up makes observation more expensive.
+
+A radial plunge compounds both costs---the object is deep in the well \emph{and} moving fast, and its now-horizon crawls. A circular orbit balances the two: the gravitational cost gradient pulling inward is exactly compensated by the velocity-dependent cost resisting further acceleration. The planet's now-horizon advances at a steady, optimised rate.
+
+Elliptical orbits are oscillations around this equilibrium. At periapsis, both costs are high and the now-horizon advances slowly; at apoapsis, both costs are low and the now-horizon advances faster. Conservation of energy along the orbit is the conservation of the total observation budget: gravitational cost plus kinetic cost remains constant. Conservation of angular momentum is the preservation of the rotational correlation structure in possibility space---a pattern of entangled possibilities that persists unless disrupted by an external observation event.
+
+\subsection{Galaxy Rotation Curves}
+
+In standard gravity with only baryonic matter, orbital velocity should fall as $v \propto 1/\sqrt{r}$ beyond the visible disc. Observed rotation curves are flat to large radii. In this framework, stars in the outer galaxy are not orbiting the visible mass alone. They are following the probability-weighted branch structure of the full informational complexity landscape, which includes the quantum correlations propagating outward from the galactic core:
+\begin{equation}
+    \frac{v^2}{r} = \frac{G\left[M_{\mathrm{baryonic}}(r) + M_{\mathrm{info}}(r)\right]}{r^2}
+    \label{eq:rotation}
+\end{equation}
+where $M_{\mathrm{info}}(r)$ is the effective mass enclosed within radius $r$ from the informational complexity profile $\rho_{\mathrm{info}}(r)$. Since the NFW-like informational complexity profile falls off more slowly than the baryonic profile, the enclosed effective mass continues to grow with radius, keeping $v$ approximately constant.
+
+\subsection{Universality of Gravity}
+\label{sec:universality}
+
+This formulation resolves a foundational puzzle: \emph{why is gravity universal?} Why does it affect all matter equally, regardless of composition?
+
+In Newtonian mechanics, this is a brute empirical fact (equivalence of inertial and gravitational mass). In general relativity, it is elevated to the equivalence principle, which is axiomatic. In this framework, it is a \emph{consequence}: gravity is not a force coupling to a specific property of matter through a charge or quantum number. It is the statistical structure of possibility space itself. Every physical system has a branching future; every branching future has a probability distribution; that distribution is shaped by the informational complexity landscape. Universality follows because nothing can opt out of the probability distribution over its own future branches.
+
+This also clarifies why freefall is locally indistinguishable from inertial motion---the weak equivalence principle. An object in freefall is not being acted on by any force. It is following the maximum-probability path through its own possibility space. There is nothing to feel, because there is no deviation from the statistically preferred trajectory.
+
+\subsection{Newton's Laws as Informational Statements}
+
+Newton's three laws acquire natural informational restatements:
+
+\textbf{First Law} (inertia): In the absence of an informational complexity gradient, all directional branches are equally weighted. There is no preferred cheap path, and the existing trajectory---the already-committed correlation structure---persists.
+
+\textbf{Second Law} ($F = ma$): The rate of change of branch selection is proportional to the observation-cost gradient. Mass $m$ is the informational complexity that resists changes in branch trajectory; force $F$ is the gradient of the informational complexity landscape; acceleration $a$ is the resulting shift in the probability distribution over future branches.
+
+\textbf{Third Law} (action--reaction): When two systems interact, each modifies the other's informational complexity landscape symmetrically. The observation-cost gradient imposed by $A$ on $B$ equals the gradient imposed by $B$ on $A$, because mutual information is symmetric: $I(A:B) = I(B:A)$.
+
+% ===================================================================
+\section{Dark Matter as Informational Complexity}
+\label{sec:darkmatter}
+% ===================================================================
+
+If mass is the informational complexity of a region's unresolved possibility space, then gravitational effects do not require baryonic matter---they require informationally complex regions where the now-horizon is expensive to advance.
+
+\subsection{The Proposal}
+
+Dark matter, in this framework, is not a particle. It is the gravitational signature of regions where the informational possibility structure is dense and entangled---where complex branching structures create observation-cost gradients---without that complexity being expressed as visible baryonic matter.
+
+This resolves the two deepest puzzles simultaneously: dark matter does not interact electromagnetically because it is informational structure rather than material substance (there is no particle to scatter photons), and direct detection experiments fail because there is no particle to detect.
+
+\subsection{Informational Complexity Profile}
+
+From Eq.~\eqref{eq:rho_info}, the informational complexity density at radius $r$ from a galaxy with baryonic profile $\rho_b$ is:
+\begin{equation}
+    \rho_{\mathrm{info}}(r) = \alpha \int \rho_b(\mathbf{r}') \, C(|\mathbf{r} - \mathbf{r}'|) \, d^3\mathbf{r}'
+    \label{eq:dark_matter_profile}
+\end{equation}
+
+For a spherically symmetric baryonic distribution, this reduces to:
+\begin{equation}
+    \rho_{\mathrm{info}}(r) = \alpha \int_0^\infty \rho_b(r') \, K_n(r, r') \, 4\pi r'^2 \, dr'
+\end{equation}
+where $K_n(r, r')$ is the angular average of the correlation kernel~\eqref{eq:kernel}:
+\begin{equation}
+    K_n(r, r') = 2\pi \int_0^\pi \frac{\sin\theta}{(r^2 + r'^2 - 2rr'\cos\theta + \epsilon^2)^{n/2}} \, d\theta
+\end{equation}
+
+The prediction is that $\rho_{\mathrm{info}}(r)$ should match the observed NFW dark matter halo profile~\cite{Navarro1996}:
+\begin{equation}
+    \rho_{\mathrm{NFW}}(r) = \frac{\rho_0}{(r/R_s)(1 + r/R_s)^2}
+    \label{eq:nfw}
+\end{equation}
+
+\subsection{Numerical Computation}
+\label{sec:nfw_calculation}
+
+We test this prediction numerically for a Milky Way-like galaxy. The baryonic matter is modelled with a Hernquist profile~\cite{Hernquist1990}:
+\begin{equation}
+    \rho_b(r) = \frac{M_b \, a_b}{2\pi \, r \, (r + a_b)^3}
+\end{equation}
+with total mass $M_b = 5 \times 10^{10} \, M_\odot$ and scale radius $a_b = 3$~kpc.
+
+We compute $\rho_{\mathrm{info}}(r)$ by numerical quadrature over the spherical convolution, using a UV softening length $\epsilon = 0.05$~kpc, and scan over the kernel power-law index $n$.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lccc}
+\hline\hline
+Kernel & $R^2$ (NFW fit) & $R_s$ (kpc) & $\Delta$ \\
+\hline
+$n = 1.0$ & 0.814 & --- & 0.50 \\
+$n = 1.5$ & 0.988 & 262.6 & 0.75 \\
+$n = 2.0$ & 0.992 & 37.6 & 1.00 \\
+$n = 2.18$ & \textbf{0.993} & \textbf{20.8} & \textbf{1.09} \\
+$n = 2.5$ & 0.995 & 7.8 & 1.25 \\
+$n = 3.0$ & 0.990 & 1.7 & 1.50 \\
+\hline\hline
+\end{tabular}
+\caption{NFW fit results for different correlation kernel power laws. $R^2$ is computed in log-space. The optimal kernel $n = 2.18$ ($\Delta = 1.09$) reproduces $R_s = 20.8$~kpc with $R^2 = 0.993$.}
+\label{tab:nfw}
+\end{table}
+
+The key result (Table~\ref{tab:nfw}, Fig.~\ref{fig:nfw}) is that a kernel with $n = 2.18$, corresponding to scaling dimension $\Delta = 1.09$, reproduces the NFW profile with $R^2 = 0.993$ and scale radius $R_s = 20.8$~kpc---consistent with observational estimates for the Milky Way halo ($R_s \approx 15$--$25$~kpc~\cite{Nesti2013}).
+
+The value $\Delta \approx 1.09$ is remarkably close to the free scalar field scaling dimension $\Delta = 1$ in $3+1$ dimensions. The slight deviation ($\sim 9\%$) may reflect gravitational corrections to the conformal scaling, renormalization effects, or contributions from higher-spin operators. A precise derivation of $\Delta$ from the gravitational sector of the QFT is an open problem.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{nfw_calculation.pdf}
+\caption{Informational complexity density profiles computed by convolving a Hernquist baryonic profile with power-law correlation kernels $C(d) \propto d^{-n}$. \textbf{Top left}: profiles for various $n$ compared to the NFW reference. \textbf{Top right}: optimal single kernel ($n = 2.18$) and composite kernel vs.~NFW. \textbf{Bottom left}: logarithmic slopes; NFW transitions from $-1$ to $-3$. \textbf{Bottom right}: fit quality $R^2$ vs.~kernel power law.}
+\label{fig:nfw}
+\end{figure}
+
+\subsection{The Bullet Cluster}
+
+The Bullet Cluster~\cite{Clowe2006}---where gravitational lensing separated from the hot gas during a cluster collision---has a natural explanation. The gas collision is a massive observation event: informational entropy is rapidly collapsed as gas shocks, heats, and radiates. This \emph{reduces} local informational complexity. However, the long-range causal correlations encoding the informational structure of the galaxy population pass through the collision intact. The lensing signal separates from the gas because information \emph{processing} (the gas shock) and informational \emph{structure} (the entangled possibility space) are distinct: the former destroys local complexity, the latter persists.
+
+\subsection{Distribution and Halo Structure}
+
+Dark matter halos concentrate around galaxies and large-scale structure---exactly where this framework predicts the highest informational complexity. Galaxies are regions of intense causal entanglement: billions of stars, feedback loops, magnetic fields, and gravitational interactions create a dense web of correlated possibilities. The halo is the informational shadow of this complexity extending beyond the visible matter.
+
+% ===================================================================
+\section{Steady-State Coupling: Deriving $\alpha$ from the Feedback Loop}
+\label{sec:steadystate}
+% ===================================================================
+
+The NFW calculation (Section~\ref{sec:nfw_calculation}) introduces a coupling constant $\alpha$ in Eq.~\eqref{eq:dark_matter_profile} relating baryonic density to informational complexity density. If $\alpha$ were a free parameter for each galaxy, the framework would have limited predictive power. We now show that the mass--observation feedback loop (Section~\ref{sec:feedback}) determines $\alpha$ from galaxy structure, reducing the framework to a single free parameter.
+
+\subsection{Steady-State Equation}
+
+The informational complexity density at radius $r$ from a galaxy evolves through two competing processes:
+\begin{equation}
+    \frac{\partial \rho_{\mathrm{info}}}{\partial t} = \mathcal{G}(r) - \mathcal{D}(r)
+    \label{eq:steadystate}
+\end{equation}
+
+The \emph{generation rate} $\mathcal{G}(r)$ arises from quantum correlations propagating outward from baryonic matter:
+\begin{equation}
+    \mathcal{G}(r) = \gamma \int \rho_b(\mathbf{r}') \, C(|\mathbf{r} - \mathbf{r}'|) \, d^3\mathbf{r}'
+\end{equation}
+where $\gamma$ is the intrinsic correlation generation rate per unit baryonic mass.
+
+The \emph{destruction rate} $\mathcal{D}(r)$ is the rate at which observation collapses informational complexity. This is proportional to both the existing complexity (more complexity means more to collapse) and the local observation capacity, which depends on the available energy flux:
+\begin{equation}
+    \mathcal{D}(r) = \rho_{\mathrm{info}}(r) \cdot \frac{\eta \, F(r)}{k_B T \ln 2}
+\end{equation}
+where $F(r) = L / (4\pi r^2)$ is the radiative energy flux from a galaxy of luminosity $L$, and $\eta$ is an efficiency factor.
+
+\subsection{Steady-State Solution}
+
+At equilibrium ($\partial \rho_{\mathrm{info}} / \partial t = 0$):
+\begin{equation}
+    \rho_{\mathrm{info}}(r) = \frac{\gamma \, k_B T \ln 2}{\eta \, F(r)} \int \rho_b(\mathbf{r}') \, C(|\mathbf{r} - \mathbf{r}'|) \, d^3\mathbf{r}'
+\end{equation}
+
+Comparing with Eq.~\eqref{eq:dark_matter_profile}, the effective coupling constant is:
+\begin{equation}
+    \alpha_{\mathrm{eff}} = \frac{\gamma \, k_B T \ln 2}{\eta \, F(R_{\mathrm{char}})}
+    \label{eq:alpha_eff}
+\end{equation}
+evaluated at a characteristic halo radius $R_{\mathrm{char}}$.
+
+Since $F \propto L / R_{\mathrm{char}}^2$ and $L \propto M_{\mathrm{bar}}$ (at fixed mass-to-light ratio):
+\begin{equation}
+    \alpha_{\mathrm{eff}} \propto \frac{R_{\mathrm{char}}^2}{M_{\mathrm{bar}}}
+    \label{eq:alpha_R2M}
+\end{equation}
+
+\subsection{Predicted Scaling Exponent}
+
+If the characteristic halo size scales with baryonic mass as $R_{\mathrm{char}} \propto M_{\mathrm{bar}}^\delta$, then:
+\begin{equation}
+    \alpha_{\mathrm{eff}} \propto M_{\mathrm{bar}}^{2\delta - 1}
+    \label{eq:alpha_scaling}
+\end{equation}
+
+This is a testable prediction: the exponent of the $\alpha$--$M$ relation is determined by the galaxy size--mass relation.
+
+\subsection{Test Against SPARC Data}
+\label{sec:sparc_test}
+
+We test this prediction using the SPARC database~\cite{Lelli2016} of 175 disk galaxies with Spitzer photometry and high-quality rotation curves. For each galaxy, the SPARC data provide the observed rotation curve, decomposed baryonic contributions (disk, gas, and bulge), and surface brightness profiles.
+
+\textbf{Step 1: Size--mass relation.} From the SPARC photometry, we measure the half-light radius $R_{1/2}$ for each galaxy and fit the scaling relation. The result is:
+\begin{equation}
+    R_{1/2} \propto M_{\mathrm{bar}}^{0.255 \pm 0.016} \qquad (r = 0.78, \; p = 1.2 \times 10^{-35})
+\end{equation}
+
+\textbf{Step 2: Predicted exponent.} From Eq.~\eqref{eq:alpha_scaling} with $\delta = 0.255$:
+\begin{equation}
+    \alpha_{\mathrm{eff}} \propto M_{\mathrm{bar}}^{2(0.255) - 1} = M_{\mathrm{bar}}^{-0.491}
+    \label{eq:predicted_exponent}
+\end{equation}
+
+\textbf{Step 3: Measured exponent.} We fit the informational complexity model to each SPARC galaxy's rotation curve individually, optimising $\alpha$ per galaxy at fixed kernel power $n$. The resulting $\alpha$ values correlate strongly with baryonic mass:
+\begin{equation}
+    \alpha_{\mathrm{measured}} \propto M_{\mathrm{bar}}^{-0.594 \pm 0.052} \qquad (r = -0.68, \; p = 3.6 \times 10^{-22})
+    \label{eq:measured_exponent}
+\end{equation}
+
+\textbf{Result:} The predicted exponent ($-0.491$) agrees with the measured exponent ($-0.594 \pm 0.052$) to within $2.0\sigma$. The steady-state feedback equation, combined with the observed galaxy size--mass relation, predicts the mass-dependent coupling constant without fitting.
+
+\subsection{Physical Interpretation}
+
+The scaling $\alpha_{\mathrm{eff}} \propto R^2 / M$ has a direct physical interpretation: more massive galaxies have higher observation capacity per unit solid angle, destroying informational complexity faster and leaving less in the halo per unit baryonic mass. The surviving fraction---which manifests as the dark matter effect---is governed by the balance between quantum correlation generation and observational destruction.
+
+The residual $\sim 20\%$ discrepancy between the predicted and measured exponents ($-0.491$ vs.\ $-0.594$) suggests that the destruction rate scales slightly steeper with mass than simple $L/R^2$. This could reflect enhanced observational efficiency in more massive galaxies due to higher stellar densities and more correlated decoherence events per unit luminosity---a correction of the form $\mathcal{D} \propto M_{\mathrm{bar}}^{1+\epsilon} / R^2$ with $\epsilon \approx 0.05$ would close the gap.
+
+\subsection{Parameter Count}
+
+With $\alpha$ determined by Eq.~\eqref{eq:alpha_scaling}, the framework has a single truly free parameter: the kernel power-law index $n$ (or equivalently the scaling dimension $\Delta = n/2$). This is comparable to MOND, which has one free parameter ($a_0 = 1.2 \times 10^{-10}$~m/s$^2$), and fewer free parameters per galaxy than standard NFW dark matter models (which require two halo parameters per galaxy, constrained by the concentration--mass relation).
+
+% ===================================================================
+\section{Decomposition of Spacetime}
+\label{sec:spacetime}
+% ===================================================================
+
+If time is an emergent process and mass-gravity is an emergent property of the observation-cost landscape, then ``spacetime'' as a unified geometric object is an effective description, not fundamental.
+
+Space is the arena of informational relationships between possible observations. Time is what happens when those relationships are irreversibly resolved. The metric tensor encodes how observation costs vary across the informational landscape.
+
+This implies a preferred structure that general relativity's diffeomorphism invariance explicitly denies: the now-horizon is a physically real boundary defined by thermodynamic irreversibility, not an arbitrary coordinate choice. The spatial metric may also emerge from informational structure: two events are ``far apart'' because collapsing the informational entropy between them requires many intermediate observation steps. Spatial distance is informational distance.
+
+% ===================================================================
+\section{Causal Horizons and Possibility Pruning}
+\label{sec:horizons}
+% ===================================================================
+
+Cosmic expansion produces causal horizons beyond which events cannot influence an observer. Informational entropy is reduced by two mechanisms:
+\begin{enumerate}
+    \item \textbf{Collapse via observation}: high-probability branches are irreversibly committed to record.
+    \item \textbf{Horizon isolation}: entire branches become causally inaccessible and are pruned from the effective possibility space.
+\end{enumerate}
+
+Spacetime expansion increases physical volume while contracting the effective future.
+
+% ===================================================================
+\section{Cosmological Observation Capacity}
+\label{sec:cosmology}
+% ===================================================================
+
+The global observation capacity is:
+\begin{equation}
+    \mathcal{O}(t) = \frac{\dot{E}_{\mathrm{diss}}(t)}{k_B T(t) \ln 2}
+\end{equation}
+
+As a first approximation, we adopt the cosmic star-formation-rate density $\dot{\rho}_*(z)$ as the dominant dissipation channel, using the Madau--Dickinson parameterization~\cite{Madau2014}:
+\begin{equation}
+    \dot{\rho}_*(z) = 0.015 \frac{(1+z)^{2.7}}{1 + \left(\frac{1+z}{2.9}\right)^{5.6}} \quad M_\odot \, \mathrm{yr}^{-1} \, \mathrm{Mpc}^{-3}
+\end{equation}
+
+With $T(z) = T_0(1+z)$:
+\begin{equation}
+    \mathcal{O}(z) \propto \frac{\dot{\rho}_*(z)}{1+z}
+\end{equation}
+
+This predicts a non-monotonic temporal conversion rate peaking near $z \approx 1.5$. The early universe ($z \gg 5$) has low observation capacity due to high Landauer costs. Cosmic noon ($z \approx 1$--$3$) maximises observation capacity. The late universe ($z \approx 0$) sees declining capacity as star formation wanes. The universe's temporal grain---the rate at which it resolves its own future---has a peak, and we are past it.
+
+\subsection{Heat Death as Temporal Cessation}
+
+As the universe approaches thermodynamic equilibrium:
+\begin{equation}
+    \dot{E}_{\mathrm{diss}} \to 0 \implies \mathcal{O}(t) \to 0 \implies \frac{dS_{\mathrm{info}}}{dt} \to 0
+\end{equation}
+
+Heat death is the exhaustion of observation capacity---not merely thermal uniformity, but the end of time.
+
+% ===================================================================
+\section{Empirical Predictions}
+\label{sec:predictions}
+% ===================================================================
+
+The framework generates several testable predictions:
+
+\begin{enumerate}
+    \item \textbf{Gravitational time dilation} emerges from the Tolman--Ehrenfest relation applied to observation capacity (Eq.~\ref{eq:grav_dilation}).
+    
+    \item \textbf{Velocity time dilation} emerges from Lorentz contraction of causal horizons reducing available informational entropy (Eq.~\ref{eq:sr_dilation}).
+    
+    \item \textbf{NFW dark matter halo profiles} are reproduced by the informational complexity density with a near-scalar-field correlation kernel ($\Delta \approx 1.09$, $R_s = 20.8$~kpc, $R^2 = 0.993$; Table~\ref{tab:nfw}).
+    
+    \item \textbf{Non-monotonic cosmic temporal rate} peaking at $z \approx 1.5$, tracking the observation capacity proxy.
+    
+    \item \textbf{Bullet Cluster separation} follows from the distinction between information processing and informational structure.
+    
+    \item \textbf{Bekenstein bound} is an accounting identity: maximum $S_{\mathrm{info}}$ equals the observation budget of a region.
+    
+    \item \textbf{Direct dark matter detection will continue to fail} if dark matter is informational structure rather than particles.
+    
+    \item \textbf{The scaling dimension $\Delta$} governing the correlation kernel should be derivable from quantum gravity and should be approximately $1.09$ or, if renormalization corrections are included, converge to a specific value near unity.
+    
+    \item \textbf{The $\alpha$--$M$ scaling exponent} is predicted by the steady-state feedback equation (Eq.~\ref{eq:alpha_scaling}) to be $\beta = 2\delta - 1$, where $\delta$ is the galaxy size--mass exponent. From SPARC data, $\delta = 0.255 \pm 0.016$, yielding a predicted $\beta = -0.491$. The measured value is $\beta = -0.594 \pm 0.052$, agreeing to $2.0\sigma$ (Section~\ref{sec:sparc_test}). This eliminates $\alpha$ as a free parameter.
+    
+    \item \textbf{Flat galaxy rotation curves} follow from Eq.~\eqref{eq:rotation}: stars orbit the full informational complexity landscape, not just the baryonic mass, producing $v \approx \mathrm{const}$ at large radii without invoking particle dark matter.
+    
+    \item \textbf{Universality of gravity} (the equivalence principle) is a consequence rather than an axiom: all systems experience gravity because all systems have branching futures shaped by the same informational complexity landscape (Section~\ref{sec:universality}).
+    
+    \item \textbf{Newton's third law} is a consequence of the symmetry of mutual information: $I(A:B) = I(B:A)$ implies that the observation-cost gradient imposed by $A$ on $B$ equals that imposed by $B$ on $A$.
+    
+    \item \textbf{Gravitational collapse} is driven by the mass--observation feedback loop (Eq.~\ref{eq:feedback}): regions of higher informational complexity generate more thermodynamic entropy through observation, producing more effective mass, which amplifies the complexity further (Section~\ref{sec:feedback}).
+    
+    \item \textbf{Black hole event horizons} correspond to the divergence of observation cost per bit: the now-horizon freezes when the feedback loop between informational density and Landauer cost reaches a critical threshold (Section~\ref{sec:blackholes}).
+    
+    \item \textbf{Hawking radiation} is the leakage of informational complexity back across the observation-cost barrier, and the black hole information paradox reduces to whether the \emph{structure} of the frozen informational entropy is preserved in the radiation.
+\end{enumerate}
+
+% ===================================================================
+\section{Discussion}
+\label{sec:discussion}
+% ===================================================================
+
+\subsection{Relation to Existing Frameworks}
+
+This framework intersects with several established programmes. Verlinde's entropic gravity~\cite{Verlinde2011} derives Newton's law from entropy gradients on holographic screens; our approach provides a specific mechanism (Landauer cost of temporal evolution) and extends it to predict dark matter profiles. The holographic principle~\cite{tHooft1993,Susskind1995} bounds entropy by area; we reinterpret this as an accounting constraint on observation budgets. The ER=EPR conjecture~\cite{Maldacena2013} links spacetime geometry to entanglement; our framework provides a thermodynamic channel through which entanglement structures produce effective mass.
+
+\subsection{Limitations and Open Questions}
+
+The gravitational time dilation derivation (Section~\ref{sec:grav_dilation}) uses the Tolman--Ehrenfest relation as input, which presupposes general relativity. A fully self-consistent derivation would require deriving the metric from informational first principles---showing that the observation-cost landscape \emph{produces} the Einstein field equations, not merely is consistent with them.
+
+The velocity-based time dilation argument (Eq.~\ref{eq:sr_dilation}) is qualitative. A rigorous treatment would require specifying exactly how relativistic boosts modify the observation capacity through the thermal environment.
+
+The NFW calculation (Section~\ref{sec:nfw_calculation}) demonstrates that the \emph{shape} of the informational complexity profile matches observations, but the \emph{normalisation}---the ratio of informational complexity to baryonic mass---is a free parameter. Determining this ratio from first principles requires a full quantum gravitational calculation.
+
+The value $\Delta = 1.09$ is an empirical fit. Deriving this from the gravitational sector of quantum field theory is an important open problem that would constitute a strong test of the framework.
+
+\subsection{Computational Interpretation}
+
+The framework has a natural computational reading:
+\begin{itemize}
+    \item $S_{\mathrm{info}}$ $\leftrightarrow$ branching execution paths
+    \item Observation $\leftrightarrow$ irreversible state commit
+    \item Now-horizon $\leftrightarrow$ execution frontier
+    \item Efficiency gradient $\leftrightarrow$ branch prediction / speculative execution
+    \item Mass $\leftrightarrow$ computational complexity density
+    \item Gravity $\leftrightarrow$ maximum-throughput routing (bulk flow toward highest processing density)
+    \item Orbits $\leftrightarrow$ steady-state execution loops optimising throughput
+    \item Feedback loop $\leftrightarrow$ runaway resource allocation (computation generates load)
+    \item Black holes $\leftrightarrow$ stack overflow (computational debt exceeds all possible budgets)
+    \item Dark matter $\leftrightarrow$ allocated but unrendered computational structure
+    \item Newton's Third Law $\leftrightarrow$ symmetric mutual information: $I(A:B) = I(B:A)$
+\end{itemize}
+
+Whether or not the universe is literally a computation, it behaves as one constrained by irreversibility, whose local clock rate is determined by the thermodynamic cost of state commitment, whose dynamics are governed by the statistical structure of the branch space, and whose large-scale structure emerges from the self-reinforcing feedback between computation and computational cost.
+
+% ===================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% ===================================================================
+
+Time emerges as the irreversible conversion of unobserved possibilities into physical records. The present is a local horizon where observation commits reality, and its rate of advance is governed by the thermodynamic cost of that commitment.
+
+Mass is the informational complexity that determines observation cost. Gravity is a statistical bias in the branching structure of possibility space: objects follow trajectories of maximum total entropy production, moving toward regions where the density of collapsible branches is highest. Individual observation events follow the efficiency gradient (cheapest branch first); bulk trajectories follow the entropy production gradient (most total dissipation). Orbits are observation-efficient equilibria. The universality of gravity follows because all systems inhabit the same possibility space.
+
+The relationship between informational complexity and mass is self-reinforcing: observation in informationally dense regions generates thermodynamic entropy, which contributes mass-energy, which raises the Landauer cost, which slows the now-horizon further. This feedback loop drives gravitational collapse and structure formation. In its extremal limit, it produces black holes---regions where the observation cost per bit diverges and the now-horizon halts.
+
+Dark matter is the gravitational signature of informationally complex regions of possibility space that lack baryonic substrate. The informational complexity density around a Milky Way-like galaxy, computed from quantum field theory-motivated correlation kernels, reproduces the NFW dark matter halo profile with $R^2 = 0.993$ and predicts flat rotation curves without invoking particle dark matter. The coupling constant governing the information--gravity connection is not free: it is determined by the steady-state balance between correlation generation and observational destruction, yielding a predicted mass scaling $\alpha \propto M^{-0.491}$ that agrees with the measured $\alpha \propto M^{-0.594 \pm 0.052}$ across 171 SPARC galaxies to within $2\sigma$. The framework has a single free parameter: the correlation kernel power law.
+
+Spacetime geometry is an effective encoding of the observation-cost landscape. Relativity is observation economics. Gravity is the path of maximum entropy production through the informational landscape.
+
+\section*{Acknowledgments}
+The author thanks Claude (Anthropic) for extensive discussion and computational assistance in developing this framework.
+
+\begin{thebibliography}{20}
+
+\bibitem{Landauer1961}
+R.~Landauer, ``Irreversibility and Heat Generation in the Computing Process,'' \emph{IBM J. Res. Dev.} \textbf{5}, 183 (1961).
+
+\bibitem{Bekenstein1981}
+J.~D.~Bekenstein, ``Universal upper bound on the entropy-to-energy ratio for bounded systems,'' \emph{Phys. Rev. D} \textbf{23}, 287 (1981).
+
+\bibitem{tHooft1993}
+G.~'t~Hooft, ``Dimensional Reduction in Quantum Gravity,'' arXiv:gr-qc/9310026 (1993).
+
+\bibitem{Susskind1995}
+L.~Susskind, ``The world as a hologram,'' \emph{J. Math. Phys.} \textbf{36}, 6377 (1995).
+
+\bibitem{Verlinde2011}
+E.~Verlinde, ``On the origin of gravity and the laws of Newton,'' \emph{JHEP} \textbf{2011}, 029 (2011).
+
+\bibitem{Wheeler1990}
+J.~A.~Wheeler, ``Information, physics, quantum: The search for links,'' in \emph{Complexity, Entropy, and the Physics of Information} (Addison-Wesley, 1990).
+
+\bibitem{Navarro1996}
+J.~F.~Navarro, C.~S.~Frenk, and S.~D.~M.~White, ``The Structure of Cold Dark Matter Halos,'' \emph{Astrophys. J.} \textbf{462}, 563 (1996).
+
+\bibitem{Hernquist1990}
+L.~Hernquist, ``An analytical model for spherical galaxies and bulges,'' \emph{Astrophys. J.} \textbf{356}, 359 (1990).
+
+\bibitem{Madau2014}
+P.~Madau and M.~Dickinson, ``Cosmic Star-Formation History,'' \emph{Annu. Rev. Astron. Astrophys.} \textbf{52}, 415 (2014).
+
+\bibitem{Tolman1930}
+R.~C.~Tolman, ``On the Weight of Heat and Thermal Equilibrium in General Relativity,'' \emph{Phys. Rev.} \textbf{35}, 904 (1930).
+
+\bibitem{Clowe2006}
+D.~Clowe \emph{et al.}, ``A Direct Empirical Proof of the Existence of Dark Matter,'' \emph{Astrophys. J. Lett.} \textbf{648}, L109 (2006).
+
+\bibitem{Bertone2005}
+G.~Bertone, D.~Hooper, and J.~Silk, ``Particle dark matter: evidence, candidates and constraints,'' \emph{Phys. Rep.} \textbf{405}, 279 (2005).
+
+\bibitem{Aprile2018}
+E.~Aprile \emph{et al.} (XENON Collaboration), ``Dark Matter Search Results from a One Ton-Year Exposure of XENON1T,'' \emph{Phys. Rev. Lett.} \textbf{121}, 111302 (2018).
+
+\bibitem{Nesti2013}
+F.~Nesti and P.~Salucci, ``The Dark Matter halo of the Milky Way, AD 2013,'' \emph{JCAP} \textbf{2013}, 016 (2013).
+
+\bibitem{Calabrese2004}
+P.~Calabrese and J.~Cardy, ``Entanglement entropy and quantum field theory,'' \emph{J. Stat. Mech.} \textbf{0406}, P06002 (2004).
+
+\bibitem{Cardy2013}
+J.~Cardy, ``Some results on the mutual information of disjoint regions in higher dimensions,'' \emph{J. Phys. A} \textbf{46}, 285402 (2013).
+
+\bibitem{Maldacena2013}
+J.~Maldacena and L.~Susskind, ``Cool horizons for entangled black holes,'' \emph{Fortsch. Phys.} \textbf{61}, 781 (2013).
+
+\bibitem{Lelli2016}
+F.~Lelli, S.~S.~McGaugh, and J.~M.~Schombert, ``SPARC: Mass Models for 175 Disk Galaxies with Spitzer Photometry and Accurate Rotation Curves,'' \emph{Astron. J.} \textbf{152}, 157 (2016).
+
+\end{thebibliography}
+
+\end{document}

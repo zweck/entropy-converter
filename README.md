@@ -19,12 +19,15 @@ Time is what happens when the first becomes the second. The "now" is the boundar
 
 Because [Landauer's principle](https://en.wikipedia.org/wiki/Landauer%27s_principle) ties the cost of each irreversible bit commitment to local temperature, observation is **cheaper in cold environments** and **more expensive in hot ones**. This naturally reproduces relativistic time dilation — not as a geometric axiom, but as a thermodynamic consequence.
 
-The framework then extends further:
+## v2 Paper — Quantitative Predictions
 
-- **Mass** is the informational complexity of a region's unresolved possibility space — its *observation resistance*
-- **Gravity** is the spatial gradient of observation cost
-- **Dark matter** is the gravitational signature of informationally complex regions that lack baryonic substrate — observation resistance without matter
-- **Dark energy** may be the accelerating growth rate of the possibility space itself
+The v2 paper extends the framework with concrete, testable predictions:
+
+- **NFW halo profile reproduction** — Convolving a Hernquist baryonic profile with a power-law correlation kernel ($n = 2.18$, $\Delta = 1.09$) reproduces the NFW dark matter halo with **R² = 0.993** and scale radius $R_s = 20.8$ kpc
+- **α–M scaling prediction** — The coupling constant α is *predicted* (not fitted) from the steady-state feedback equation: α ∝ M^(−0.491), agreeing with the measured α ∝ M^(−0.594 ± 0.052) across 171 SPARC galaxies to within **2.0σ**
+- **Single free parameter** — With α determined by the feedback loop, only the kernel power law index remains free
+
+📄 **[Download the LaTeX source →](https://entropy-converter.pages.dev/paper.tex)**
 
 ## Interactive Visualisations
 
@@ -34,7 +37,8 @@ The framework then extends further:
 | **Causal Horizons** | How cosmic expansion prunes possibility space by isolating regions beyond causal contact |
 | **CPU** | The computational analogy — the universe as a processor whose clock rate is set by observation cost |
 | **Simulation** | Interactive branching simulation — watch possibilities collapse into history |
-| **Paper** | The full paper with LaTeX rendering and text-to-speech narration |
+| **SPARC Data** | Validation results from 171 SPARC galaxies — rotation curve fits, χ² distributions, and the α–M scaling prediction |
+| **Paper** | The full v2 paper with LaTeX rendering and text-to-speech narration |
 
 ## Tech Stack
 

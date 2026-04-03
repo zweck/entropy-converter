@@ -3,6 +3,7 @@ import EntropyVisualization from './components/EntropyVisualization';
 import CPUVisualization from './components/CPUVisualization';
 import CausalHorizonVisualization from './components/CausalHorizonVisualization';
 import BranchingSimulation from './components/BranchingSimulation';
+import SPARCResults from './components/SPARCResults';
 import Paper from './components/Paper';
 import './App.css';
 
@@ -40,6 +41,12 @@ function App() {
             Simulation
           </button>
           <button
+            className={`nav-btn ${activeTab === 'sparc' ? 'active' : ''}`}
+            onClick={() => setActiveTab('sparc')}
+          >
+            SPARC Data
+          </button>
+          <button
             className={`nav-btn ${activeTab === 'paper' ? 'active' : ''}`}
             onClick={() => setActiveTab('paper')}
           >
@@ -69,6 +76,7 @@ function App() {
             <BranchingSimulation />
           </div>
         )}
+        {activeTab === 'sparc' && <SPARCResults />}
         {activeTab === 'paper' && <Paper />}
       </main>
     </div>
