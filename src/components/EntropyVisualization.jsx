@@ -1,6 +1,6 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Text } from "@react-three/drei";
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useCallback } from "react";
 import * as THREE from "three";
 
 // Observation capacity O(t) following Madau-Dickinson-like curve
@@ -77,10 +77,12 @@ function PastParticles({ count, t }) {
   );
 }
 
-function FutureParticles({ count, t }) {
+function FutureParticles({ count, t, onDensityUpdate }) {
   const mesh = useRef();
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const colorArray = useRef(new Float32Array(count * 3));
+  // Store world positions for density sampling
+  const worldPositions = useRef([]);
 
   // Generate stable positions using hash-based distribution for true randomness
   const particles = useMemo(() => {
@@ -121,6 +123,8 @@ function FutureParticles({ count, t }) {
     const baseChaos = 0.05 + 0.1 * Math.min(intensity - 1, 5);
     const speedMult = 1 + Math.min(intensity - 1, 8);
 
+    const positions = [];
+
     particles.forEach((particle, i) => {
       // Base position - x is normalized 0-1 within future box, y/z centered
       const normalizedX = (particle.x + 1) / 2; // 0 = near NOW, 1 = far from NOW
@@ -129,19 +133,19 @@ function FutureParticles({ count, t }) {
       const baseZ = particle.z * 0.8;
 
       // DETERMINISM GRADIENT: Near NOW = more determined (less chaos), Far = less determined (more chaos)
-      // This represents the gradient described in the paper - near horizon is constrained
-      const freedomFactor = normalizedX; // 0 near NOW, 1 far from NOW
+      const freedomFactor = normalizedX;
 
       // Chaos scales with distance from NOW - more freedom = more chaos
       const localChaos = baseChaos * (0.2 + freedomFactor * 1.5);
       const localSpeed = speedMult * (0.3 + freedomFactor * 1.2);
 
       // Add chaotic motion that increases with distance from NOW
-      dummy.position.set(
-        baseX + Math.sin(time * particle.speed * localSpeed + particle.offset) * localChaos,
-        baseY + Math.cos(time * particle.speed * localSpeed * 0.8 + particle.offset * 1.3) * localChaos,
-        baseZ + Math.sin(time * particle.speed * localSpeed * 0.6 + particle.offset * 0.7) * localChaos
-      );
+      const px = baseX + Math.sin(time * particle.speed * localSpeed + particle.offset) * localChaos;
+      const py = baseY + Math.cos(time * particle.speed * localSpeed * 0.8 + particle.offset * 1.3) * localChaos;
+      const pz = baseZ + Math.sin(time * particle.speed * localSpeed * 0.6 + particle.offset * 0.7) * localChaos;
+
+      dummy.position.set(px, py, pz);
+      positions.push({ x: px, y: py, z: pz });
 
       // Scale: determined particles are smaller/denser, free particles are larger/diffuse
       const baseScale = 0.035 + Math.min(intensity * 0.005, 0.03);
@@ -150,15 +154,16 @@ function FutureParticles({ count, t }) {
       mesh.current.setMatrixAt(i, dummy.matrix);
 
       // Color gradient: cyan (determined, near NOW) -> purple/magenta (free, far from NOW)
-      // Near NOW: #00aaff (cyan) - possibilities being observed/constrained
-      // Far from NOW: #aa44ff (purple) - high informational entropy, unobserved
-      const r = freedomFactor * 0.67; // 0 -> 0.67
-      const g = 0.67 - freedomFactor * 0.4; // 0.67 -> 0.27
+      const r = freedomFactor * 0.67;
+      const g = 0.67 - freedomFactor * 0.4;
       const b = 1.0;
       colorArray.current[i * 3] = r;
       colorArray.current[i * 3 + 1] = g;
       colorArray.current[i * 3 + 2] = b;
     });
+
+    worldPositions.current = positions;
+    if (onDensityUpdate) onDensityUpdate(positions);
 
     mesh.current.instanceMatrix.needsUpdate = true;
     if (mesh.current.geometry.attributes.color) {
@@ -176,6 +181,136 @@ function FutureParticles({ count, t }) {
       </boxGeometry>
       <meshBasicMaterial vertexColors />
     </instancedMesh>
+  );
+}
+
+// Deformable Now-Horizon membrane that warps based on local particle density
+// Dense regions = high observation cost = membrane lags behind (slower collapse)
+// Sparse regions = low cost = membrane pushes forward (faster collapse)
+function NowHorizonMembrane({ t, particlePositions }) {
+  const meshRef = useRef();
+  const gridRes = 20; // subdivisions for y and z
+  const basePositions = useRef(null);
+
+  // Create subdivided plane geometry (YZ plane, will displace along X)
+  const geometry = useMemo(() => {
+    const geo = new THREE.PlaneGeometry(2.2, 2.2, gridRes, gridRes);
+    // Rotate to face along X axis (plane is in YZ, normal along X)
+    geo.rotateY(Math.PI / 2);
+    return geo;
+  }, [gridRes]);
+
+  // Store the base vertex positions on first render
+  useMemo(() => {
+    if (geometry) {
+      basePositions.current = new Float32Array(geometry.attributes.position.array);
+    }
+  }, [geometry]);
+
+  useFrame(({ clock }) => {
+    if (!meshRef.current || !basePositions.current) return;
+    const time = clock.getElapsedTime();
+    const positions = meshRef.current.geometry.attributes.position;
+    const base = basePositions.current;
+    const nowX = -4 + 8 * t;
+
+    // Sample density: for each vertex, count nearby future particles
+    // Use a kernel radius to smooth the density field
+    const kernelRadius = 0.6;
+    const kernelRadiusSq = kernelRadius * kernelRadius;
+    const particles = particlePositions || [];
+
+    for (let i = 0; i < positions.count; i++) {
+      // Base positions: x is ~0 (plane center), y and z vary over [-1.1, 1.1]
+      const bx = base[i * 3];     // near 0 after rotation
+      const by = base[i * 3 + 1]; // -1.1 to 1.1
+      const bz = base[i * 3 + 2]; // -1.1 to 1.1
+
+      // World y/z for this vertex
+      const wy = by;
+      const wz = bz;
+
+      // Count nearby particles (only those close to the horizon in y/z)
+      let density = 0;
+      for (let p = 0; p < particles.length; p++) {
+        const dy = particles[p].y - wy;
+        const dz = particles[p].z - wz;
+        // Only consider particles near the horizon (within 0.8 units in x)
+        const dx = particles[p].x - nowX;
+        if (dx > -0.3 && dx < 1.2) {
+          const distSq = dy * dy + dz * dz;
+          if (distSq < kernelRadiusSq) {
+            // Gaussian-ish kernel weight
+            density += 1 - (distSq / kernelRadiusSq);
+          }
+        }
+      }
+
+      // Displacement: dense areas push the horizon BACK (positive x = into future = lag)
+      // Sparse areas let it push FORWARD (negative x displacement)
+      // Normalize density to a reasonable range
+      const maxDisplacement = 0.35;
+      const normalizedDensity = Math.min(density / 8, 1); // 0-1
+
+      // Displacement: 0 density → push forward, high density → push back
+      const displacement = (normalizedDensity - 0.3) * maxDisplacement;
+
+      // Add subtle organic wave for visual life
+      const wave = 0.02 * Math.sin(by * 3 + time * 1.5) * Math.cos(bz * 2.5 + time * 1.2);
+
+      positions.array[i * 3] = nowX + displacement + wave;
+      positions.array[i * 3 + 1] = by;
+      positions.array[i * 3 + 2] = bz;
+    }
+
+    positions.needsUpdate = true;
+    meshRef.current.geometry.computeVertexNormals();
+  });
+
+  // Color: create a vertex color buffer that will show density as heat
+  const colorAttr = useMemo(() => {
+    const count = (gridRes + 1) * (gridRes + 1);
+    return new Float32Array(count * 3).fill(1); // init white
+  }, [gridRes]);
+
+  useFrame(() => {
+    if (!meshRef.current) return;
+    const positions = meshRef.current.geometry.attributes.position;
+    const colors = meshRef.current.geometry.attributes.color;
+    if (!colors) return;
+    const nowX = -4 + 8 * t;
+
+    for (let i = 0; i < positions.count; i++) {
+      const vertX = positions.array[i * 3];
+      // How much is this vertex displaced from the base nowX?
+      const disp = vertX - nowX; // positive = lagging (dense), negative = leading (sparse)
+      const normalizedDisp = THREE.MathUtils.clamp((disp + 0.35) / 0.7, 0, 1); // 0=leading, 1=lagging
+
+      // Leading (sparse, fast): bright white/cyan
+      // Lagging (dense, slow): warm amber/orange — shows resistance
+      colors.array[i * 3]     = 0.7 + normalizedDisp * 0.3;  // R
+      colors.array[i * 3 + 1] = 1.0 - normalizedDisp * 0.5;  // G
+      colors.array[i * 3 + 2] = 1.0 - normalizedDisp * 0.7;  // B
+    }
+    colors.needsUpdate = true;
+  });
+
+  return (
+    <mesh ref={meshRef} geometry={geometry} frustumCulled={false}>
+      <meshStandardMaterial
+        vertexColors
+        emissive="#ffffff"
+        emissiveIntensity={1.5}
+        transparent
+        opacity={0.85}
+        side={THREE.DoubleSide}
+        wireframe={false}
+      />
+      <bufferAttribute
+        attach="geometry-attributes-color"
+        args={[colorAttr, 3]}
+      />
+    </mesh>
   );
 }
 
@@ -290,14 +425,11 @@ function DeterminismGradient({ t }) {
 }
 
 function EntropyScene({ t }) {
-  const presentRef = useRef();
+  const particlePositionsRef = useRef([]);
 
-  useFrame(({ clock }) => {
-    const s = 1 + 0.05 * Math.sin(clock.getElapsedTime() * 3);
-    if (presentRef.current) {
-      presentRef.current.scale.set(1, s, s);
-    }
-  });
+  const handleDensityUpdate = useCallback((positions) => {
+    particlePositionsRef.current = positions;
+  }, []);
 
   const pastFraction = t;
   const futureFraction = 1 - t;
@@ -365,17 +497,9 @@ function EntropyScene({ t }) {
         </lineSegments>
       )}
 
-      {/* Present frontier - the Now-Horizon where observation occurs */}
-      <mesh ref={presentRef} position={[-4 + 8 * pastFraction, 0, 0]}>
-        <boxGeometry args={[0.05, 2.2, 2.2]} />
-        <meshStandardMaterial
-          color="#ffffff"
-          emissive="#ffffff"
-          emissiveIntensity={2}
-          transparent
-          opacity={0.9}
-        />
-      </mesh>
+      {/* Now-Horizon: deformable membrane that warps with local particle density */}
+      {/* Dense regions resist observation → membrane lags. Sparse regions → membrane leads. */}
+      <NowHorizonMembrane t={t} particlePositions={particlePositionsRef.current} />
 
       {/* Big Bang singularity */}
       <BigBangSingularity visible={t < 0.05} />
@@ -387,7 +511,7 @@ function EntropyScene({ t }) {
 
       {/* Future: unobserved possibilities - informational entropy */}
       {futureFraction > 0.01 && (
-        <FutureParticles count={Math.floor(600 * futureFraction)} t={t} />
+        <FutureParticles count={Math.floor(600 * futureFraction)} t={t} onDensityUpdate={handleDensityUpdate} />
       )}
 
       {/* Determinism gradient: shows how possibilities become observed near NOW */}
@@ -575,12 +699,15 @@ export default function EntropyVisualization({ t, setT }) {
           <span className="legend-color free"></span>
           <span>Far from horizon: free, high S<sub>info</sub></span>
         </div>
-        <h4>Local Now-Horizon</h4>
+        <h4>Local Now-Horizon (Membrane)</h4>
         <div className="legend-note" style={{ marginBottom: '4px' }}>
-          Now-horizon is <em>local</em> — advances at different rates depending on observation cost (Landauer: E ≥ k<sub>B</sub>T ln 2)
+          The membrane warps with local density — dense regions resist observation and <em>lag behind</em> (Landauer: E ≥ k<sub>B</sub>T ln 2)
         </div>
         <div className="legend-note" style={{ marginBottom: '4px' }}>
-          High energy density → expensive observation → slower time
+          Sparse regions collapse faster → membrane <em>leads</em> — this <b>is</b> gravitational time dilation
+        </div>
+        <div className="legend-note" style={{ marginBottom: '4px' }}>
+          Amber = high observation cost (slow). White/cyan = low cost (fast).
         </div>
         <div className="legend-note">
           Mass = observation resistance. Gravity = cost gradient.
