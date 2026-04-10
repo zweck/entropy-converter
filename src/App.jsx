@@ -4,6 +4,7 @@ import CPUVisualization from './components/CPUVisualization';
 import CausalHorizonVisualization from './components/CausalHorizonVisualization';
 import BranchingSimulation from './components/BranchingSimulation';
 import SPARCResults from './components/SPARCResults';
+import KiDSResults from './components/KiDSResults';
 import Paper from './components/Paper';
 import './App.css';
 
@@ -47,6 +48,12 @@ function App() {
             SPARC Data
           </button>
           <button
+            className={`nav-btn ${activeTab === 'kids' ? 'active' : ''}`}
+            onClick={() => setActiveTab('kids')}
+          >
+            KiDS-1000
+          </button>
+          <button
             className={`nav-btn ${activeTab === 'paper' ? 'active' : ''}`}
             onClick={() => setActiveTab('paper')}
           >
@@ -77,6 +84,7 @@ function App() {
           </div>
         )}
         {activeTab === 'sparc' && <SPARCResults />}
+        {activeTab === 'kids' && <KiDSResults />}
         {activeTab === 'paper' && <Paper />}
       </main>
     </div>
