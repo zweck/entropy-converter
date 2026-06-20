@@ -1,12 +1,59 @@
+/* ============================================================
+   Design tokens — Time as Observation-Limited Entropy Conversion
+   ============================================================ */
 :root {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.5;
+  /* Surfaces (deep space) */
+  --bg-0: #03040c;
+  --bg-1: #070a18;
+  --bg-2: #0c1126;
+  --bg-glass: rgba(12, 17, 38, 0.55);
+  --bg-glass-strong: rgba(8, 11, 26, 0.85);
+
+  /* Ink */
+  --ink: #eef1ff;
+  --ink-dim: #aab3d6;
+  --ink-faint: #6b7398;
+
+  /* The two entropies */
+  --past-1: #ffb056;     /* thermodynamic past — orange */
+  --past-2: #ff5e62;     /* hot red */
+  --future-1: #4cc9f0;   /* informational future — cyan */
+  --future-2: #b56bff;   /* deep violet */
+  --now: #ffffff;        /* present frontier */
+
+  /* Accents */
+  --cyan: #4cc9f0;
+  --teal: #5eead4;
+  --violet: #a78bfa;
+  --amber: #ffb056;
+
+  /* Gradients */
+  --grad-future: linear-gradient(135deg, var(--future-1) 0%, var(--future-2) 100%);
+  --grad-past: linear-gradient(135deg, var(--past-1) 0%, var(--past-2) 100%);
+  --grad-time: linear-gradient(90deg, var(--past-1) 0%, var(--past-2) 22%, #7b5cff 55%, var(--future-1) 100%);
+  --grad-title: linear-gradient(120deg, #ffffff 0%, #bcd4ff 40%, var(--violet) 100%);
+
+  /* Lines / borders */
+  --line: rgba(125, 150, 255, 0.14);
+  --line-strong: rgba(125, 150, 255, 0.3);
+
+  /* Type */
+  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SF Mono', 'Monaco', monospace;
+
+  /* Layout */
+  --maxw: 1100px;
+  --readw: 720px;
+  --radius: 18px;
+  --shadow-glow: 0 0 40px rgba(76, 201, 240, 0.18);
+
+  font-family: var(--font-body);
+  line-height: 1.6;
   font-weight: 400;
-
   color-scheme: dark;
-  color: #e8e8e8;
-  background-color: #050710;
-
+  color: var(--ink);
+  background-color: var(--bg-0);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -19,22 +66,48 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
 html, body, #root {
   width: 100%;
-  height: 100%;
-  overflow: hidden;
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg-0);
+  color: var(--ink);
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
 }
 
 a {
   font-weight: 500;
-  color: #88aaff;
+  color: var(--cyan);
   text-decoration: none;
 }
-
-a:hover {
-  color: #aaccff;
-}
+a:hover { color: var(--teal); }
 
 button {
   font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Global scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-0); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(76, 201, 240, 0.4), rgba(167, 139, 250, 0.4));
+  border-radius: 6px;
+  border: 2px solid var(--bg-0);
+}
+::selection {
+  background: rgba(167, 139, 250, 0.35);
+  color: #fff;
 }

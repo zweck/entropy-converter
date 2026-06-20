@@ -1,94 +1,129 @@
-import { useState } from 'react';
-import EntropyVisualization from './components/EntropyVisualization';
-import CPUVisualization from './components/CPUVisualization';
-import CausalHorizonVisualization from './components/CausalHorizonVisualization';
-import BranchingSimulation from './components/BranchingSimulation';
-import SPARCResults from './components/SPARCResults';
-import KiDSResults from './components/KiDSResults';
-import Paper from './components/Paper';
+import { useState, useEffect, lazy, Suspense } from 'react';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
+import { motion, useScroll, useSpring } from 'framer-motion';
+
+import Starfield from './viz/Starfield';
+import Hero from './sections/Hero';
+import { Narrative } from './sections/Narrative';
 import './App.css';
 
-function App() {
-  const [activeTab, setActiveTab] = useState('entropy');
-  const [t, setT] = useState(0);
+// react-markdown + KaTeX are sizeable; split the paper into its own chunk.
+const Paper = lazy(() => import('./components/Paper'));
 
+/* Top scroll-progress bar coloured along the time gradient. */
+function ProgressRail() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.4 });
+  return <motion.div className="progress-rail" style={{ scaleX }} aria-hidden="true" />;
+}
+
+/* Compact top bar: brand + jump-to-paper. Hides on scroll-down. */
+function TopBar() {
+  const [hidden, setHidden] = useState(false);
+  const { pathname } = useLocation();
+  useEffect(() => {
+    let last = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      setHidden(y > 120 && y > last);
+      last = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  const onPaper = pathname === '/paper';
   return (
-    <div className="app">
-      <header className="header">
-        <h1>Time as Observation-Limited Entropy Conversion</h1>
-        <nav className="nav">
-          <button
-            className={`nav-btn ${activeTab === 'entropy' ? 'active' : ''}`}
-            onClick={() => setActiveTab('entropy')}
-          >
-            Entropy
-          </button>
-          <button
-            className={`nav-btn ${activeTab === 'horizons' ? 'active' : ''}`}
-            onClick={() => setActiveTab('horizons')}
-          >
-            Causal Horizons
-          </button>
-          <button
-            className={`nav-btn ${activeTab === 'cpu' ? 'active' : ''}`}
-            onClick={() => setActiveTab('cpu')}
-          >
-            CPU
-          </button>
-          <button
-            className={`nav-btn ${activeTab === 'simulation' ? 'active' : ''}`}
-            onClick={() => setActiveTab('simulation')}
-          >
-            Simulation
-          </button>
-          <button
-            className={`nav-btn ${activeTab === 'sparc' ? 'active' : ''}`}
-            onClick={() => setActiveTab('sparc')}
-          >
-            SPARC Data
-          </button>
-          <button
-            className={`nav-btn ${activeTab === 'kids' ? 'active' : ''}`}
-            onClick={() => setActiveTab('kids')}
-          >
-            KiDS-1000
-          </button>
-          <button
-            className={`nav-btn ${activeTab === 'paper' ? 'active' : ''}`}
-            onClick={() => setActiveTab('paper')}
-          >
-            Paper
-          </button>
-        </nav>
-      </header>
-
-      <main className="main">
-        {activeTab === 'entropy' && (
-          <div className="viz-panel full-panel">
-            <EntropyVisualization t={t} setT={setT} />
-          </div>
-        )}
-        {activeTab === 'horizons' && (
-          <div className="viz-panel full-panel horizon-panel">
-            <CausalHorizonVisualization t={t} setT={setT} />
-          </div>
-        )}
-        {activeTab === 'cpu' && (
-          <div className="viz-panel full-panel cpu-panel">
-            <CPUVisualization t={t} setT={setT} />
-          </div>
-        )}
-        {activeTab === 'simulation' && (
-          <div className="viz-panel full-panel">
-            <BranchingSimulation />
-          </div>
-        )}
-        {activeTab === 'sparc' && <SPARCResults />}
-        {activeTab === 'kids' && <KiDSResults />}
-        {activeTab === 'paper' && <Paper />}
-      </main>
-    </div>
+    <header className={`topbar ${hidden ? 'topbar--hidden' : ''}`}>
+      <Link to="/" className="topbar__brand">
+        <span className="topbar__mark" aria-hidden="true" />
+        Entropy&nbsp;· Time
+      </Link>
+      {onPaper ? (
+        <Link to="/" className="topbar__link">← Back to the story</Link>
+      ) : (
+        <Link to="/paper" className="topbar__link">Paper &amp; audio →</Link>
+      )}
+    </header>
   );
 }
 
-export default App;
+/* Reset scroll position whenever the route changes. */
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
+/* Closing hand-off from the scroll story to the full manuscript. */
+function PaperHandoff() {
+  return (
+    <section className="paper-cta">
+      <div className="paper-cta__inner">
+        <p className="eyebrow"><span className="eyebrow__num">10</span>The full text</p>
+        <h2 className="scene__title">Read, listen, or download the paper</h2>
+        <p className="lede">
+          The complete v3 manuscript — emergent temporality, relativistic dilation, and
+          dark matter from information thermodynamics — with section-by-section
+          text-to-speech and a PDF download.
+        </p>
+        <Link to="/paper" className="btn btn--primary">Open the paper →</Link>
+      </div>
+    </section>
+  );
+}
+
+/* Page 1 — the scrollytelling narrative. */
+function Home({ t, setT }) {
+  return (
+    <>
+      <ProgressRail />
+      <main className="site__main">
+        <Hero />
+        <Narrative t={t} setT={setT} />
+        <PaperHandoff />
+      </main>
+    </>
+  );
+}
+
+/* Page 2 — the full paper. */
+function PaperPage() {
+  return (
+    <main className="site__main paper-page">
+      <div className="paper-page__top">
+        <Link to="/" className="paper-back">← Back to the story</Link>
+      </div>
+      <Suspense fallback={<div className="paper-loading">loading manuscript…</div>}>
+        <Paper />
+      </Suspense>
+    </main>
+  );
+}
+
+export default function App() {
+  // Shared timeline scalar t ∈ [0,1] driving the three time-linked instruments.
+  const [t, setT] = useState(0);
+
+  return (
+    <div className="site">
+      <Starfield />
+      <TopBar />
+      <ScrollToTop />
+
+      <Routes>
+        <Route path="/" element={<Home t={t} setT={setT} />} />
+        <Route path="/paper" element={<PaperPage />} />
+        <Route path="*" element={<Home t={t} setT={setT} />} />
+      </Routes>
+
+      <footer className="site-footer">
+        <p>Time as Observation-Limited Entropy Conversion · Philip J. Hauser</p>
+        <p className="site-footer__dim">
+          Past is committed. Future is open. The now-horizon is where the cost is paid.
+        </p>
+      </footer>
+    </div>
+  );
+}
