@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { useReducedMotion } from '../lib/hooks';
 
 function Clock({ x, label, rate, depth }) {
@@ -21,13 +20,20 @@ function Clock({ x, label, rate, depth }) {
           />
         );
       })}
-      <motion.line
-        x1="0" y1="6" x2="0" y2="-24"
-        className="dl-hand"
-        style={{ originX: '0px', originY: '6px' }}
-        animate={reduced ? {} : { rotate: 360 }}
-        transition={{ repeat: Infinity, ease: 'linear', duration: dur }}
-      />
+      {/* Native SVG rotate about the clock's local origin (0,0) — unambiguous
+          across browsers, unlike a CSS transform-origin on the line's bbox. */}
+      <line x1="0" y1="7" x2="0" y2="-24" className="dl-hand">
+        {!reduced && (
+          <animateTransform
+            attributeName="transform"
+            type="rotate"
+            from="0 0 0"
+            to="360 0 0"
+            dur={`${dur}s`}
+            repeatCount="indefinite"
+          />
+        )}
+      </line>
       <circle r="3" className="dl-hub" />
       <text y="58" className="dl-label">{label}</text>
       <text y="74" className="dl-rate">dτ/dt = {rate.toFixed(2)}</text>
