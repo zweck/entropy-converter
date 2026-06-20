@@ -1210,6 +1210,40 @@ export default function Paper() {
           </svg>
           Download PDF
         </a>
+        <a
+          href="https://notebooklm.google.com/notebook/81ed75dd-c4b8-4ab7-9b28-f1613a1d4e12/artifact/ed7e8e94-04e3-4034-b49f-ccc786cada2f?utm_source=nlmm_share"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.6rem 1.2rem',
+            background: 'rgba(94, 234, 212, 0.1)',
+            border: '1px solid rgba(94, 234, 212, 0.3)',
+            borderRadius: '6px',
+            color: '#5eead4',
+            fontSize: '0.9rem',
+            textDecoration: 'none',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseOver={e => {
+            e.currentTarget.style.background = 'rgba(94, 234, 212, 0.2)';
+            e.currentTarget.style.borderColor = '#5eead4';
+            e.currentTarget.style.color = '#fff';
+          }}
+          onMouseOut={e => {
+            e.currentTarget.style.background = 'rgba(94, 234, 212, 0.1)';
+            e.currentTarget.style.borderColor = 'rgba(94, 234, 212, 0.3)';
+            e.currentTarget.style.color = '#5eead4';
+          }}
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path d="M12 2l1.9 5.1L19 9l-5.1 1.9L12 16l-1.9-5.1L5 9l5.1-1.9L12 2zM18 14l.95 2.55L21.5 17.5l-2.55.95L18 21l-.95-2.55L14.5 17.5l2.55-.95L18 14z"/>
+          </svg>
+          Explore on NotebookLM
+        </a>
       </div>
       <article className="paper-content">
         <ReactMarkdown
