@@ -5,7 +5,6 @@ import { motion, useScroll, useSpring } from 'framer-motion';
 import Starfield from './viz/Starfield';
 import Hero from './sections/Hero';
 import { Narrative } from './sections/Narrative';
-import { NAV } from './sections/nav';
 import './App.css';
 
 // react-markdown + KaTeX are sizeable; split the paper into its own chunk.
@@ -16,43 +15,6 @@ function ProgressRail() {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.4 });
   return <motion.div className="progress-rail" style={{ scaleX }} aria-hidden="true" />;
-}
-
-/* Vertical dot navigation that highlights the section in view. */
-function SideNav() {
-  const [active, setActive] = useState(NAV[0].id);
-  useEffect(() => {
-    const ids = NAV.map((n) => n.id);
-    const obs = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible) setActive(visible.target.id);
-      },
-      { rootMargin: '-45% 0px -45% 0px', threshold: [0, 0.25, 0.5] }
-    );
-    ids.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) obs.observe(el);
-    });
-    return () => obs.disconnect();
-  }, []);
-
-  return (
-    <nav className="side-nav" aria-label="Section navigation">
-      {NAV.map((n) => (
-        <a
-          key={n.id}
-          href={`#${n.id}`}
-          className={`side-nav__item ${active === n.id ? 'is-active' : ''}`}
-        >
-          <span className="side-nav__dot" />
-          <span className="side-nav__label">{n.label}</span>
-        </a>
-      ))}
-    </nav>
-  );
 }
 
 /* Compact top bar: brand + jump-to-paper. Hides on scroll-down. */
@@ -117,7 +79,6 @@ function Home({ t, setT }) {
   return (
     <>
       <ProgressRail />
-      <SideNav />
       <main className="site__main">
         <Hero />
         <Narrative t={t} setT={setT} />
