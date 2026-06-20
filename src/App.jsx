@@ -1,4 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { motion, useScroll, useSpring } from 'framer-motion';
 
 import Starfield from './viz/Starfield';
@@ -57,6 +58,7 @@ function SideNav() {
 /* Compact top bar: brand + jump-to-paper. Hides on scroll-down. */
 function TopBar() {
   const [hidden, setHidden] = useState(false);
+  const { pathname } = useLocation();
   useEffect(() => {
     let last = window.scrollY;
     const onScroll = () => {
@@ -67,14 +69,75 @@ function TopBar() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+  const onPaper = pathname === '/paper';
   return (
     <header className={`topbar ${hidden ? 'topbar--hidden' : ''}`}>
-      <a href="#top" className="topbar__brand">
+      <Link to="/" className="topbar__brand">
         <span className="topbar__mark" aria-hidden="true" />
         Entropy&nbsp;· Time
-      </a>
-      <a href="#paper" className="topbar__link">Paper &amp; audio →</a>
+      </Link>
+      {onPaper ? (
+        <Link to="/" className="topbar__link">← Back to the story</Link>
+      ) : (
+        <Link to="/paper" className="topbar__link">Paper &amp; audio →</Link>
+      )}
     </header>
+  );
+}
+
+/* Reset scroll position whenever the route changes. */
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
+/* Closing hand-off from the scroll story to the full manuscript. */
+function PaperHandoff() {
+  return (
+    <section className="paper-cta">
+      <div className="paper-cta__inner">
+        <p className="eyebrow"><span className="eyebrow__num">10</span>The full text</p>
+        <h2 className="scene__title">Read, listen, or download the paper</h2>
+        <p className="lede">
+          The complete v3 manuscript — emergent temporality, relativistic dilation, and
+          dark matter from information thermodynamics — with section-by-section
+          text-to-speech and a PDF download.
+        </p>
+        <Link to="/paper" className="btn btn--primary">Open the paper →</Link>
+      </div>
+    </section>
+  );
+}
+
+/* Page 1 — the scrollytelling narrative. */
+function Home({ t, setT }) {
+  return (
+    <>
+      <ProgressRail />
+      <SideNav />
+      <main className="site__main">
+        <Hero />
+        <Narrative t={t} setT={setT} />
+        <PaperHandoff />
+      </main>
+    </>
+  );
+}
+
+/* Page 2 — the full paper. */
+function PaperPage() {
+  return (
+    <main className="site__main paper-page">
+      <div className="paper-page__top">
+        <Link to="/" className="paper-back">← Back to the story</Link>
+      </div>
+      <Suspense fallback={<div className="paper-loading">loading manuscript…</div>}>
+        <Paper />
+      </Suspense>
+    </main>
   );
 }
 
@@ -85,29 +148,14 @@ export default function App() {
   return (
     <div className="site">
       <Starfield />
-      <ProgressRail />
       <TopBar />
-      <SideNav />
+      <ScrollToTop />
 
-      <main className="site__main">
-        <Hero />
-        <Narrative t={t} setT={setT} />
-
-        <section id="paper" className="paper-section">
-          <div className="paper-section__head">
-            <p className="eyebrow"><span className="eyebrow__num">10</span>The full text</p>
-            <h2 className="scene__title">Read, listen, or download the paper</h2>
-            <p className="lede">
-              The complete v3 manuscript — emergent temporality, relativistic dilation,
-              and dark matter from information thermodynamics — with section-by-section
-              text-to-speech.
-            </p>
-          </div>
-          <Suspense fallback={<div className="paper-loading">loading manuscript…</div>}>
-            <Paper />
-          </Suspense>
-        </section>
-      </main>
+      <Routes>
+        <Route path="/" element={<Home t={t} setT={setT} />} />
+        <Route path="/paper" element={<PaperPage />} />
+        <Route path="*" element={<Home t={t} setT={setT} />} />
+      </Routes>
 
       <footer className="site-footer">
         <p>Time as Observation-Limited Entropy Conversion · Philip J. Hauser</p>

@@ -9,5 +9,4 @@ export const NAV = [
   { id: 'bullet', label: 'Bullet Cluster' },
   { id: 'ledger', label: 'Fit vs derived' },
   { id: 'extensions', label: 'Extensions' },
-  { id: 'paper', label: 'The paper' },
 ];

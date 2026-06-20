@@ -445,14 +445,33 @@
 .ledger__how { font-size: 0.82rem; color: var(--ink-faint); line-height: 1.5; }
 
 /* ============================================================
-   Paper section + footer
+   Paper hand-off CTA (page 1) + paper page (page 2) + footer
    ============================================================ */
-.paper-section { position: relative; z-index: 1; padding: clamp(3rem, 8vh, 6rem) 0 0; }
-.paper-section__head {
-  max-width: var(--readw); margin: 0 auto 1rem;
-  padding: 0 clamp(1.2rem, 6vw, 3rem);
+.paper-cta {
+  position: relative; z-index: 1;
+  padding: clamp(4rem, 12vh, 8rem) clamp(1.2rem, 6vw, 3rem);
 }
-.paper-section__head .scene__title { margin-bottom: 0.8rem; }
+.paper-cta__inner {
+  max-width: var(--readw); margin: 0 auto; text-align: center;
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: clamp(2rem, 6vw, 3.5rem);
+  background: var(--bg-glass); backdrop-filter: blur(8px);
+}
+.paper-cta__inner .eyebrow { justify-content: center; }
+.paper-cta__inner .lede { margin-bottom: 1.6rem; }
+.paper-cta__inner .btn { display: inline-flex; }
+
+.paper-page { position: relative; z-index: 1; padding-top: 56px; }
+.paper-page__top {
+  max-width: var(--readw); margin: 0 auto;
+  padding: 1.4rem clamp(1.2rem, 6vw, 3rem) 0;
+}
+.paper-back {
+  font-family: var(--font-mono); font-size: 0.82rem; color: var(--ink-dim);
+  display: inline-flex; align-items: center; gap: 0.3rem;
+}
+.paper-back:hover { color: var(--cyan); }
+
 .paper-loading {
   max-width: var(--readw); margin: 0 auto; padding: 3rem clamp(1.2rem, 6vw, 3rem);
   font-family: var(--font-mono); font-size: 0.85rem; color: var(--ink-faint); text-align: center;
@@ -647,6 +666,7 @@
   .stat-row { grid-template-columns: 70px 44px 1fr; }
   .controls-overlay { max-width: min(88%, 300px); }
   .tts-player { top: 50px; border-radius: 12px; }
+  .paper-page { padding-top: 50px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import HorizonSweep from '../viz/HorizonSweep';
 
 const easeOut = [0.22, 1, 0.36, 1];
@@ -49,7 +50,7 @@ export default function Hero() {
           transition={{ duration: 0.9, delay: 0.4, ease: easeOut }}
         >
           <a className="btn btn--primary" href="#premise">Begin the descent</a>
-          <a className="btn btn--ghost" href="#paper">Read the paper</a>
+          <Link className="btn btn--ghost" to="/paper">Read the paper</Link>
         </motion.div>
       </div>
 
