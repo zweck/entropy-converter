@@ -229,13 +229,13 @@ function Empirical() {
       />
 
       <Instrument label="SPARC · the α–M scaling relation">
-        <LazyEmbed minHeight="62vh">
+        <LazyEmbed auto minHeight="50vh">
           <SPARCResults />
         </LazyEmbed>
       </Instrument>
 
       <Instrument label="KiDS-1000 · weak-lensing two-zone fit">
-        <LazyEmbed minHeight="62vh">
+        <LazyEmbed auto minHeight="50vh">
           <KiDSResults />
         </LazyEmbed>
       </Instrument>

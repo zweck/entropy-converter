@@ -328,6 +328,7 @@
 
 /* lazy embed sizing */
 .lazy-embed { position: relative; width: 100%; overflow: hidden; }
+.lazy-embed--auto { height: auto; overflow: visible; }
 .embed-skeleton {
   position: absolute; inset: 0; display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 1rem; color: var(--ink-faint);
@@ -667,6 +668,50 @@
   .controls-overlay { max-width: min(88%, 300px); }
   .tts-player { top: 50px; border-radius: 12px; }
   .paper-page { padding-top: 50px; }
+}
+
+/* Embedded interactive viz on mobile: stack the controls below the canvas
+   (instead of overlaying it) and hide the verbose legend, so the 3D scene is
+   never covered. The canvas keeps an explicit height; !important overrides the
+   inline height set by R3F's container and by LazyEmbed. */
+@media (max-width: 768px) {
+  .lazy-embed:not(.lazy-embed--auto) { height: auto !important; }
+
+  .visualization-container {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+  }
+  .visualization-container > div:first-child {
+    height: 56vh !important;
+    min-height: 320px;
+    width: 100%;
+    flex-shrink: 0;
+  }
+
+  .controls-overlay {
+    position: static;
+    flex-direction: column;
+    gap: 0.6rem;
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+    padding: 0.8rem;
+    background: rgba(5, 7, 16, 0.94);
+    border-top: 1px solid var(--line);
+    backdrop-filter: none;
+  }
+  .controls-overlay .slider-container,
+  .controls-overlay .stats-panel,
+  .controls-overlay .controls-panel {
+    background: transparent;
+    border: none;
+    backdrop-filter: none;
+    padding: 0.3rem 0.2rem;
+    min-width: 0;
+  }
+
+  .legend, .horizon-legend { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
