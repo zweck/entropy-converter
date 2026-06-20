@@ -489,15 +489,29 @@
 /* ============================================================
    PRESERVED legacy component styles (embedded interactives)
    ============================================================ */
-.visualization-container { width: 100%; height: 100%; position: relative; }
+/* Embedded interactive viz: canvas on top, controls stacked below — at every
+   width. The canvas keeps an explicit, screen-scaled height; !important beats
+   the inline height:100% that R3F's container (and .canvas-wrapper) set. */
+.visualization-container {
+  width: 100%; height: auto; position: relative;
+  display: flex; flex-direction: column;
+}
 .canvas-wrapper { width: 100%; height: 100%; }
-.cpu-visualization, .simulation-visualization, .causal-horizon-viz { width: 100%; height: 100%; position: relative; }
+.cpu-visualization, .simulation-visualization, .causal-horizon-viz { width: 100%; height: auto; position: relative; }
+
+.visualization-container > div:first-child {
+  height: 56vh !important;
+  min-height: 340px;
+  width: 100%;
+  flex-shrink: 0;
+}
 
 .controls-overlay {
-  position: absolute; top: 0.8rem; left: 0.8rem;
-  display: flex; flex-direction: column; gap: 0.8rem; z-index: 10;
-  max-height: calc(100% - 1.6rem); overflow-y: auto;
-  max-width: min(82%, 320px);
+  position: static;
+  display: flex; flex-direction: column; gap: 0.7rem; z-index: 10;
+  padding: 0.9rem 1rem;
+  background: rgba(8, 11, 26, 0.6);
+  border-top: 1px solid var(--line);
 }
 .slider-container, .stats-panel, .controls-panel {
   background: var(--bg-glass-strong); padding: 0.9rem 1.1rem;
@@ -536,9 +550,12 @@
   font-family: var(--font-mono); font-size: 0.76rem; color: var(--cyan); text-align: center;
 }
 
+/* The verbose reference legend is hidden in-context (the narrative explains the
+   colour coding); the interactive instruments lead with the scene itself. */
+.legend, .horizon-legend { display: none; }
 .legend {
   position: absolute; bottom: 0.8rem; left: 0.8rem;
-  display: flex; flex-direction: column; gap: 0.4rem;
+  flex-direction: column; gap: 0.4rem;
   background: var(--bg-glass-strong); padding: 0.9rem; border-radius: 12px;
   border: 1px solid var(--line); backdrop-filter: blur(10px);
   max-height: calc(100% - 1.6rem); overflow-y: auto; z-index: 10;
@@ -665,53 +682,35 @@
   .ledger__row { grid-template-columns: 1fr; gap: 0.4rem; padding: 0.9rem 1rem; }
   .ledger__status { justify-self: start; }
   .stat-row { grid-template-columns: 70px 44px 1fr; }
-  .controls-overlay { max-width: min(88%, 300px); }
   .tts-player { top: 50px; border-radius: 12px; }
   .paper-page { padding-top: 50px; }
 }
 
-/* Embedded interactive viz on mobile: stack the controls below the canvas
-   (instead of overlaying it) and hide the verbose legend, so the 3D scene is
-   never covered. The canvas keeps an explicit height; !important overrides the
-   inline height set by R3F's container and by LazyEmbed. */
-@media (max-width: 768px) {
-  .lazy-embed:not(.lazy-embed--auto) { height: auto !important; }
-
-  .visualization-container {
-    display: flex;
-    flex-direction: column;
-    height: auto;
-  }
+/* Bigger interactive instruments on larger screens, with the controls laid out
+   in a row below the (taller) canvas to use the extra width. */
+@media (min-width: 768px) {
   .visualization-container > div:first-child {
-    height: 56vh !important;
-    min-height: 320px;
-    width: 100%;
-    flex-shrink: 0;
+    height: 64vh !important;
+    min-height: 480px;
   }
-
   .controls-overlay {
-    position: static;
-    flex-direction: column;
-    gap: 0.6rem;
-    max-width: none;
-    max-height: none;
-    overflow: visible;
-    padding: 0.8rem;
-    background: rgba(5, 7, 16, 0.94);
-    border-top: 1px solid var(--line);
-    backdrop-filter: none;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.9rem 1.4rem;
+    padding: 1.1rem 1.3rem;
   }
-  .controls-overlay .slider-container,
-  .controls-overlay .stats-panel,
-  .controls-overlay .controls-panel {
-    background: transparent;
-    border: none;
-    backdrop-filter: none;
-    padding: 0.3rem 0.2rem;
-    min-width: 0;
-  }
+  .controls-overlay .slider-container { flex: 1 1 340px; }
+  .controls-overlay .stats-panel { flex: 1 1 280px; }
+  .controls-overlay .controls-panel { flex: 1 1 340px; }
+}
 
-  .legend, .horizon-legend { display: none; }
+@media (min-width: 1280px) {
+  .visualization-container > div:first-child {
+    height: 72vh !important;
+    min-height: 560px;
+    max-height: 900px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

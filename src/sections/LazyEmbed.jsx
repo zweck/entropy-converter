@@ -12,9 +12,9 @@ import { useInViewMount } from '../lib/hooks';
  */
 export default function LazyEmbed({ children, minHeight = '70vh', auto = false }) {
   const [ref, mounted] = useInViewMount('400px');
-  const style = auto
-    ? { minHeight }
-    : { height: minHeight, minHeight: '360px' };
+  // Fixed (canvas) embeds let CSS drive the canvas height and grow to include
+  // the controls stacked below; minHeight just sizes the loading placeholder.
+  const style = auto ? { minHeight } : { minHeight: '360px' };
   return (
     <div
       ref={ref}
